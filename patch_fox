@@ -1,0 +1,51 @@
+diff -uprN fox.org/config/config.sub fox/config/config.sub
+--- fox.org/config/config.sub	2015-12-24 06:28:29.000000000 +0900
++++ fox/config/config.sub	2020-09-01 14:51:05.000000000 +0900
+@@ -362,7 +362,7 @@ case $basic_machine in
+ 	| shle-* | sh[1234]le-* | sh3ele-* | sh64-* | sh64le-* \
+ 	| sparc-* | sparc64-* | sparc64b-* | sparc64v-* | sparc86x-* | sparclet-* \
+ 	| sparclite-* \
+-	| sparcv8-* | sparcv9-* | sparcv9b-* | sparcv9v-* | strongarm-* | sv1-* | sx?-* \
++	| sparcv8-* | sparcv9-* | sparcv9b-* | sparcv9v-* | strongarm-* | sv1-* | sx?-* | aurora-* \
+ 	| tahoe-* | thumb-* \
+ 	| tic30-* | tic4x-* | tic54x-* | tic55x-* | tic6x-* | tic80-* \
+ 	| tron-* \
+@@ -1220,7 +1220,7 @@ case $os in
+ 	      | -openstep* | -oskit* | -conix* | -pw32* | -nonstopux* \
+ 	      | -storm-chaos* | -tops10* | -tenex* | -tops20* | -its* \
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+-	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
++	      | -morphos* | -superux* | -veos* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+ 	      | -skyos* | -haiku* | -rdos* | -toppers*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+diff -uprN fox.org/fsys/fox_m_fsys_format.F90 fox/fsys/fox_m_fsys_format.F90
+--- fox.org/fsys/fox_m_fsys_format.F90	2018-04-27 00:55:45.000000000 +0900
++++ fox/fsys/fox_m_fsys_format.F90	2019-04-12 21:35:25.000000000 +0900
+@@ -168,9 +168,16 @@ contains
+ 
+   pure function str_integer_len(i) result(n)
+     integer, intent(in) :: i
+-    integer :: n
++    integer :: n,a
+ 
+-    n = int(log10(real(max(abs(i),1)))) + 1 + dim(-i,0)/max(abs(i),1)
++!    n = int(log10(real(max(abs(i),1)))) + 1 + dim(-i,0)/max(abs(i),1)
++         a=abs(i)
++     if(a.eq.10) then
++      n = int(ceiling(log10(real(max(abs(i),1))))) + 1 + &
++               dim(-i,0)/max(abs(i),1)
++     else
++       n = int(log10(real(max(abs(i),1)))) + 1 + dim(-i,0)/max(abs(i),1)
++     endif
+ 
+   end function str_integer_len
+ 
+@@ -1225,7 +1232,6 @@ contains
+     if (j == 10) then
+       ! Now round ...
+       s(n:n) = "9"
+-      ! Are they all 9's?
+       i = verify(s, "9", .true.)
+       if (i == 0) then
+         s(1:1) = "!"

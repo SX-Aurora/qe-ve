@@ -88,7 +88,7 @@ libfox:
 	echo $(HOST)
 	if test ! -d ../FoX; then \
         mkdir ../FoX; \
-	(gzip -dc ../archive/fox.tgz | (cd ../FoX; tar -xvf -)); \
+	(gzip -dc ../archive/fox.tgz | (cd ../FoX; tar -xvf -; patch -p 0 < $(TOPDIR)/patch_fox)); \
 	cd ../FoX/fox/; ./configure   --prefix="$(TOPDIR)/FoX/" FC='$(F90)' \
           --host=aurora-nec-veos FCFLAGS='-fno-fast-math ' RANLIB=$(RANLIB) AR=$(AR) ; \
 	$(MAKE) install; cd ../;fi #rm -fr fox; fi

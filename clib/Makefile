@@ -28,6 +28,6 @@ source :
 	co -l $(OBJS:.o=.c)
 
 clean :
-	- rm -f clib.a *.o *.mod *.i core*
+	- rm -f clib.a *.o *.mod *.i core* *.L
 
 include make.depend
