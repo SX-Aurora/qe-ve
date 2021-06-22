@@ -63,24 +63,32 @@ SUBROUTINE do_stop( exit_status )
   IF ( exit_status == -1 ) THEN
      ! -1 is not an acceptable value for stop in fortran;
      ! convert it to 255
-     STOP 255
+     WRITE( 0,'("STOP 255(-1)")')
+     RETURN
   ELSE IF ( exit_status == 0 ) THEN
-     STOP
+     RETURN
   ELSE IF ( exit_status == 1 ) THEN
-     STOP 1
+     WRITE( 0,'("STOP 1")')
+     RETURN
   ELSE IF ( exit_status == 2 ) THEN
-     STOP 2
+     WRITE( 0,'("STOP 2")')
+     RETURN
   ELSE IF ( exit_status == 3 ) THEN
-     STOP 3
+     WRITE( 0,'("STOP 3")')
+     RETURN
   ELSE IF ( exit_status == 4 ) THEN
-     STOP 4
+     WRITE( 0,'("STOP 4")')
+     RETURN
   ELSE IF ( exit_status == 255 ) THEN
-     STOP 255
+     WRITE( 0,'("STOP 255")')
+     RETURN
   ELSE IF ( exit_status == 254 ) THEN
-     STOP 254
+     WRITE( 0,'("STOP 254")')
+     RETURN
   ELSE
      ! unimplemented value
-     STOP 128
+     WRITE( 0,'("STOP 128")')
+     RETURN
   END IF
   !
 END SUBROUTINE do_stop

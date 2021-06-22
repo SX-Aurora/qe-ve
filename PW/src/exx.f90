@@ -3,6 +3,9 @@
 ! GNU General Public License. See the file `License'
 ! in the root directory of the present distribution,
 ! or http://www.gnu.org/copyleft/gpl.txt .
+#ifdef __ZGEMM3M
+#define ZGEMM ZGEMM3M
+#endif
 !
 !--------------------------------------
 MODULE exx

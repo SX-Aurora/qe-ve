@@ -15,6 +15,9 @@
 #include <sys/resource.h>
 #endif
 #include <unistd.h>
+#ifdef USE_VEPERF
+#include <veperf.h>
+#endif
 
 double cclock()
 
@@ -47,6 +50,19 @@ double scnds ( )
         cpu.ft = ut;
         sec = cpu.ui * 0.0000001;
     }
+#elif defined(_OPENMP)
+    static struct rusage T;
+    getrusage(RUSAGE_SELF, &T);
+    sec = ((double)T.ru_utime.tv_sec + ((double)T.ru_utime.tv_usec)/1000000.0);
+
+#elif defined(USE_VEPERF) 
+    static int first = 1;
+    static int64_t core_clock;
+    if(first == 1){
+       core_clock = veperf_get_core_clock();
+       first = 0;
+    }
+    sec = ((double) veperf_get_usrcc()) / ((double) core_clock);
 #else
     static struct rusage T;
 

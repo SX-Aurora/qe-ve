@@ -15,25 +15,24 @@ FUNCTION capital( in_char )
   IMPLICIT NONE  
   !
   CHARACTER(LEN=1), INTENT(IN) :: in_char
-  CHARACTER(LEN=1)             :: capital
+  CHARACTER(LEN=1)             :: capital, c
   CHARACTER(LEN=26), PARAMETER :: lower = 'abcdefghijklmnopqrstuvwxyz', &
                                   upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   INTEGER                      :: i
   !
   !
+  c = in_char
   DO i=1, 26
      !
      IF ( in_char == lower(i:i) ) THEN
         !
-        capital = upper(i:i)
-        !
-        RETURN
+        c = upper(i:i)
         !
      END IF
      !
   END DO
   !
-  capital = in_char
+  capital = c
   !
   RETURN 
   !

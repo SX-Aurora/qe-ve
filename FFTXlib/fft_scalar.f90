@@ -1,4 +1,3 @@
-!
 ! Copyright (C) Quantum ESPRESSO group
 !
 ! This file is distributed under the terms of the
@@ -29,7 +28,12 @@
 #elif defined(__LINUX_ESSL)
      USE fft_scalar_essl
 #elif defined(__SX6)
+#if defined(__FFTW3)
+     USE fft_scalar_fftw3
+#else
      USE fft_scalar_sx6
+#endif
+       USE fft_scalar_sx6
 #elif defined(__ARM_LIB)
      USE fft_scalar_arm
 #else
@@ -39,7 +43,6 @@
      IMPLICIT NONE
      SAVE
 
-     PRIVATE
      PUBLIC :: cft_1z, cft_2xy, cfft3d, cfft3ds
 
    END MODULE fft_scalar

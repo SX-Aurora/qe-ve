@@ -168,6 +168,10 @@ all : libqemod.a
 
 ## The following is needed only for lapack compiled from sources
 
+capital.o : capital.f90
+	$(CPP) $(CPPFLAGS) $< -o $(*)_tmp.f90 ; \
+	$(MPIF90) $(F90FLAGS) -c $(*)_tmp.f90 -o $(*).o
+
 dlamch.o : dlamch.f
 	$(F77) $(FFLAGS_NOOPT) -c $<
 

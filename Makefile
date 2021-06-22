@@ -200,7 +200,7 @@ mods : libiotk libfox libutil libla libfft
 libks_solvers : libs libutil libla
 	( cd KS_Solvers ; $(MAKE) TLDEPS= all || exit 1 )
 
-libla : liblapack libutil libcuda
+libla : liblapack libutil libcuda libelpa
 	( cd LAXlib ; $(MAKE) TLDEPS= all || exit 1 )
 
 libfft : 
@@ -234,6 +234,8 @@ liblapack:
 libiotk: 
 	cd install ; $(MAKE) -f extlibs_makefile $@
 libfox: 
+	cd install ; $(MAKE) -f extlibs_makefile $@
+libelpa: 
 	cd install ; $(MAKE) -f extlibs_makefile $@
 
 libcuda: 

@@ -17,19 +17,15 @@ add_vuspsi.o \
 add_gatefield.o \
 add_paw_to_deeq.o \
 add_vhub_to_deeq.o \
-addusdens.o \
 addusforce.o \
 addusstress.o \
 allocate_fft.o \
 allocate_locpot.o \
 allocate_nlpot.o \
 allocate_wfc.o \
-atomic_rho.o \
-atomic_wfc.o \
 atomic_wfc_mod.o \
 average_pp.o \
 acfdt_in_pw.o \
-newd.o \
 bp_mod.o \
 bp_c_phase.o \
 bp_calc_btq.o \
@@ -58,7 +54,6 @@ divide_class.o \
 divide_class_so.o \
 divide_et_impera.o \
 dqvan2.o \
-drhoc.o \
 rotate_wfc.o \
 run_driver.o \
 dvloc_of_g.o \
@@ -84,7 +79,6 @@ force_hub.o \
 force_lc.o \
 force_us.o \
 forces.o \
-g_psi.o \
 g_psi_mod.o \
 gen_at_dj.o \
 gen_at_dy.o \
@@ -129,7 +123,6 @@ move_ions.o \
 multable.o \
 n_plane_waves.o \
 new_ns.o \
-new_occ.o \
 ns_adj.o \
 non_scf.o \
 offset_atom_wfc.o \
@@ -157,7 +150,6 @@ plugin_ext_forces.o \
 plugin_int_forces.o \
 plugin_read_input.o \
 plus_u_full.o \
-potinit.o \
 print_clock_pw.o \
 print_ks_energies.o \
 punch.o \
@@ -186,7 +178,6 @@ save_in_electrons.o \
 scale_h.o \
 loc_scdm.o \
 loc_scdm_k.o \
-scf_mod.o \
 set_kplusq.o \
 set_kup_and_kdw.o \
 set_rhoc.o \
@@ -203,7 +194,6 @@ stres_har.o \
 stres_hub.o \
 stres_knl.o \
 stres_loc.o \
-stres_us.o \
 stres_nonloc_dft.o \
 stres_mgga.o \
 stress.o \
@@ -228,7 +218,6 @@ v_of_rho.o \
 vcsmd.o \
 vcsubs.o \
 vhpsi.o \
-vloc_of_g.o \
 vloc_psi.o \
 utils.o \
 xdm_dispersion.o \
@@ -243,6 +232,24 @@ wannier_check.o \
 wannier_clean.o \
 wannier_occ.o \
 wannier_enrg.o
+
+
+MODULESCON= \
+scf_mod.o \
+drhoc.o \
+stres_us.o \
+atomic_wfc.o \
+atomic_rho.o \
+vloc_of_g.o \
+potinit.o \
+new_occ.o \
+addusdens.o \
+newd.o \
+g_psi.o \
+
+$(MODULESCON):%.o : %.f90
+	$(CPP) $(CPPFLAGS) $< -o $(*)_tmp.f90 ; \
+	$(MPIF90) $(F90FLAGS) -c $(*)_tmp.f90 -o $(*).o
 
 QEMODS=../../Modules/libqemod.a \
        ../../KS_Solvers/libks_solvers.a \
@@ -259,7 +266,7 @@ pw.x : $(PWOBJS) libpw.a $(LIBOBJS) $(QEMODS)
                ln -fs ../PW/src/$@ dist.x ; ln -fs ../PW/src/$@ manypw.x ; )
 # dist.x and manypw.x link the same executable pw.x
 
-libpw.a : $(PWLIBS) 
+libpw.a : $(PWLIBS) $(MODULESCON)
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -280,6 +287,13 @@ generate_rVV10_kernel_table.x : libpw.a generate_rVV10_kernel_table.o
 		generate_rVV10_kernel_table.o $(QEMODS) libpw.a $(LIBOBJS) $(QELIBS)
 	- ( cd ../../bin; ln -fs ../PW/src/$@ . )
 
+realus.o : realus.f90
+	$(CPP) $(CPPFLAGS) $< -o $(*)_tmp.f90 ; \
+	$(MPIF90) $(F90FLAGS) -c $(*)_tmp.f90 -o $(*).o
+
+sum_band.o : sum_band.f90
+	$(CPP) $(CPPFLAGS) $< -o $(*)_tmp.f90 ; \
+	$(MPIF90) $(F90FLAGS) -O1 -c $(*)_tmp.f90 -o $(*).o
 
 include make.depend
 

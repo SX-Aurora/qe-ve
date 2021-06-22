@@ -12,6 +12,9 @@
 ! It is very similar to the routine c_phase in bp_c_phase
 ! however the numbering of the k-points in the strings is different
 
+#ifdef __ZGEMM3M
+#define ZGEMM ZGEMM3M
+#endif
 
 !======================================================================!
 

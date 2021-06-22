@@ -30,6 +30,7 @@ subroutine sph_bes (msh, r, q, l, jl)
   real(DP) :: x, xl, xseries = 0.05_dp
   integer :: ir, ir0
   integer, external:: semifact
+  integer :: val_semifact
   !
 #if defined (__MASS)
   real(DP) :: qr(msh), sin_qr(msh), cos_qr(msh)
@@ -81,6 +82,24 @@ subroutine sph_bes (msh, r, q, l, jl)
      end if
   end do
 
+  if (l == 0) then
+    val_semifact = 1
+  elseif (l == 1) then
+    val_semifact = 3      ! 1*3
+  elseif (l == 2) then
+    val_semifact = 15     ! 3*5
+  elseif (l == 3) then
+    val_semifact = 105    ! 15*7
+  elseif (l == 4) then
+    val_semifact = 945    ! 105*9
+  elseif (l == 5) then
+    val_semifact = 10395  ! 945*11
+  elseif (l == 6) then
+    val_semifact = 135135 ! 10395*13
+  else
+    val_semifact = semifact(2*l+1)
+  endif
+
   do ir = 1, ir0 - 1
      x = q * r (ir)
      if ( l == 0 ) then
@@ -88,7 +107,7 @@ subroutine sph_bes (msh, r, q, l, jl)
      else
         xl = x**l
      end if
-     jl (ir) = xl/semifact(2*l+1) * &
+     jl (ir) = xl/val_semifact * &
                 ( 1.0_dp - x**2/1.0_dp/2.0_dp/(2.0_dp*l+3) * &
                 ( 1.0_dp - x**2/2.0_dp/2.0_dp/(2.0_dp*l+5) * &
                 ( 1.0_dp - x**2/3.0_dp/2.0_dp/(2.0_dp*l+7) * &

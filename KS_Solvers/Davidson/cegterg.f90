@@ -7,6 +7,9 @@
 !
 #define ZERO ( 0.D0, 0.D0 )
 #define ONE  ( 1.D0, 0.D0 )
+#ifdef __ZGEMM3M
+#define ZGEMM ZGEMM3M
+#endif
 !
 !----------------------------------------------------------------------------
 SUBROUTINE cegterg( h_psi, s_psi, uspp, g_psi, &

@@ -140,7 +140,7 @@ CONTAINS
      implicit none
      real(dp) :: rho, kF
 
-     kF = ( 3.0D0 * pi**2 * rho )**(1.0D0/3.0D0)
+     kF = cbrt( 3.0D0 * pi**2 * rho )
 
   end function kF
 
@@ -152,7 +152,7 @@ CONTAINS
      implicit none
      real(dp) :: rho, dkF_drho
 
-     dkF_drho = (1.0D0/3.0D0) * kF(rho) / rho
+     dkF_drho = (1.0D0/3.0D0) * cbrt( 3.0D0 * pi**2 * rho ) / rho
 
   end function dkF_drho
 
@@ -164,7 +164,7 @@ CONTAINS
      implicit none
      real(dp) :: rho, s, ds_drho
 
-     ds_drho = -s * ( dkF_drho(rho) / kF(rho) + 1.0D0 / rho )
+     ds_drho = -s * ( dkF_drho(rho) / cbrt( 3.0D0 * pi**2 * rho ) + 1.0D0 / rho )
 
   end function ds_drho
 
@@ -176,7 +176,7 @@ CONTAINS
      implicit none
      real(dp) :: rho, ds_dgradrho
 
-     ds_dgradrho = 1.0D0 / (2.0D0 * kF(rho) * rho)
+     ds_dgradrho = 1.0D0 / (2.0D0 * cbrt( 3.0D0 * pi**2 * rho ) * rho)
 
   end function ds_dgradrho
 
@@ -188,7 +188,7 @@ CONTAINS
      implicit none
      real(dp) :: rho, s, dqx_drho
 
-     dqx_drho = dkF_drho(rho) * Fs(s) + kF(rho) * dFs_ds(s) * ds_drho(rho, s)
+     dqx_drho = dkF_drho(rho) * Fs(s) + cbrt( 3.0D0 * pi**2 * rho ) * dFs_ds(s) * ds_drho(rho, s)
 
   end function dqx_drho
 
@@ -633,10 +633,10 @@ CONTAINS
      ! -----------------------------------------------------------------
      ! Calculate some intermediate values needed to find q.
 
-     r_s = ( 3.0D0 / (4.0D0*pi*rho) )**(1.0D0/3.0D0)
+     r_s = cbrt( 3.0D0 / (4.0D0*pi*rho) )
 
      s   = sqrt( grad_rho(1,i_grid)**2 + grad_rho(2,i_grid)**2 + grad_rho(3,i_grid)**2 ) &
-         / (2.0D0 * kF(rho) * rho )
+         / (2.0D0 * cbrt( 3.0D0 * pi**2 * rho ) * rho )
 
 
      ! -----------------------------------------------------------------
@@ -644,7 +644,7 @@ CONTAINS
      ! Use pw() from flib/functionals.f90 to get qc = kf/eps_x * eps_c.
 
      call pw(r_s, 1, ec, dq0_drho(i_grid))
-     q = -4.0D0*pi/3.0D0 * ec + kF(rho) * Fs(s)
+     q = -4.0D0*pi/3.0D0 * ec + cbrt( 3.0D0 * pi**2 * rho ) * Fs(s)
 
 
      ! -----------------------------------------------------------------
@@ -672,7 +672,7 @@ CONTAINS
 
      dq0_drho(i_grid)     = dq0_dq * rho * ( -4.0D0*pi/3.0D0 * &
                             (dq0_drho(i_grid) - ec)/rho + dqx_drho(rho, s) )
-     dq0_dgradrho(i_grid) = dq0_dq * rho * kF(rho) * dFs_ds(s) * ds_dgradrho(rho)
+     dq0_dgradrho(i_grid) = dq0_dq * rho * cbrt( 3.0D0 * pi**2 * rho ) * dFs_ds(s) * ds_dgradrho(rho)
 
   end do
 
@@ -801,14 +801,14 @@ CONTAINS
 
      if (calc_qx_up) then
         s_up    = sqrt( grad_rho_up(1,i_grid)**2 + grad_rho_up(2,i_grid)**2 + &
-                  grad_rho_up(3,i_grid)**2 ) / (2.0D0 * kF(up) * up)
+                  grad_rho_up(3,i_grid)**2 ) / (2.0D0 * cbrt( 3.0D0 * pi**2 * up ) * up)
         qx_up   = kF(2.0D0*up) * Fs(fac*s_up)
         CALL saturate_q (qx_up, 4.0D0*q_cut, q0x_up, dq0x_up_dq)
      end if
 
      if (calc_qx_down) then
         s_down  = sqrt( grad_rho_down(1,i_grid)**2 + grad_rho_down(2,i_grid)**2 + &
-                  grad_rho_down(3,i_grid)**2) / (2.0D0 * kF(down) * down)
+                  grad_rho_down(3,i_grid)**2) / (2.0D0 * cbrt( 3.0D0 * pi**2 * down ) * down)
         qx_down = kF(2.0D0*down) * Fs(fac*s_down)
         CALL saturate_q (qx_down, 4.0D0*q_cut, q0x_down, dq0x_down_dq)
      end if
@@ -818,7 +818,7 @@ CONTAINS
      ! This is the q value defined in equations 11 and 12 of DION and
      ! equation 8 of THONHAUSER (also see text above that equation).
 
-     r_s  = ( 3.0D0 / (4.0D0*pi*rho) )**(1.0D0/3.0D0)
+     r_s  = cbrt( 3.0D0 / (4.0D0*pi*rho) )
      zeta = (up - down) / rho
      IF ( ABS(zeta) > 1.0D0 ) zeta = SIGN(1.0D0, zeta)
      call pw_spin(r_s, zeta, ec, dqc_drho_up, dqc_drho_down)
@@ -853,13 +853,13 @@ CONTAINS
 
      if (calc_qx_up) then
         dqx_drho_up   = 2.0D0*dq0x_up_dq*up*dqx_drho(2.0D0*up, fac*s_up) + q0x_up*down/rho
-        dq0_dgradrho_up (i_grid) = 2.0D0 * dq0_dq * dq0x_up_dq * up * kF(2.0D0*up) * &
+        dq0_dgradrho_up (i_grid) = 2.0D0 * dq0_dq * dq0x_up_dq * up * cbrt( 3.0D0 * pi**2 * 2.0D0*up ) * &
                         dFs_ds(fac*s_up) * ds_dgradrho(2.0D0*up)
      end if
 
      if (calc_qx_down) then
         dqx_drho_down = 2.0D0*dq0x_down_dq*down*dqx_drho(2.0D0*down, fac*s_down) + q0x_down*up/rho
-        dq0_dgradrho_down(i_grid) = 2.0D0 * dq0_dq * dq0x_down_dq * down * kF(2.0D0*down) * &
+        dq0_dgradrho_down(i_grid) = 2.0D0 * dq0_dq * dq0x_down_dq * down * cbrt( 3.0D0 * pi**2 * 2.0D0*down ) * &
                         dFs_ds(fac*s_down) * ds_dgradrho(2.0D0*down)
      end if
 

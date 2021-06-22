@@ -46,6 +46,12 @@ integer function good_fft_dimension (n)
   ! if n is a power of 2 (log2n is integer) increase dimension by 1
 #elif defined(__SX6)
   !
+#ifdef __NEC
+  if (mod (n, 2) ==0) nx = n
+#else
+  if (mod (n, 2) ==0) nx = n + 1
+#endif
+#else  
   if (mod (n, 2) ==0) nx = n + 1
   ! for nec vector machines: if n is even increase dimension by 1
   !

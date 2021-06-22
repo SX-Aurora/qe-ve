@@ -33,6 +33,7 @@ subroutine qvan2 (ngy, ih, jh, np, qmod, qg, ylmk0)
   ! np    :   index of pseudopotentials
   !
   real(DP),intent(IN) :: ylmk0 (ngy, lmaxq * lmaxq), qmod (ngy)
+  real(DP) :: igl(ngy)
   ! ylmk0 :  spherical harmonics
   ! qmod  :  moduli of the q+g vectors
   !
@@ -42,11 +43,13 @@ subroutine qvan2 (ngy, ih, jh, np, qmod, qg, ylmk0)
   !
   !     here the local variables
   !
-  real (DP) :: sig
+  real (DP), allocatable :: sig(:), sigap(:)
   ! the nonzero real or imaginary part of (-i)^L 
   real (DP), parameter :: sixth = 1.d0 / 6.d0
   !
-  integer :: nb, mb, ijv, ivl, jvl, ig, lp, l, lm, i0, i1, i2, i3, ind
+  integer :: nb, mb, ijv, ivl, jvl, ig, lm, i0, i1, i2, i3
+  integer, allocatable :: lp(:), l(:), ind(:) 
+  integer :: qmig
   ! nb,mb  : atomic index corresponding to ih,jh
   ! ijv    : combined index (nb,mb)
   ! ivl,jvl: combined LM index corresponding to ih,jh
@@ -84,56 +87,68 @@ subroutine qvan2 (ngy, ih, jh, np, qmod, qg, ylmk0)
   !
   !    and make the sum over the non zero LM
   !
+  allocate(lp(lpx(ivl, jvl)))
+  allocate(l(lpx(ivl, jvl)))
+  allocate(ind(lpx(ivl, jvl)))
+  allocate(sig(lpx(ivl, jvl)))
+  allocate(sigap(lpx(ivl, jvl)))
+
   do lm = 1, lpx (ivl, jvl)
-     lp = lpl (ivl, jvl, lm)
-     if ( lp < 1 .or. lp > 49 ) call errore ('qvan2', ' lp wrong ', max(lp,1))
-     !
-     !     find angular momentum l corresponding to combined index lp
-     !     (l is actually l+1 because this is the way qrad is stored, check init_us_1)
-     !
-     if (lp == 1) then
-        l = 1
-        sig = 1.0d0
-        ind = 1
-     elseif ( lp <= 4) then
-        l = 2
-        sig =-1.0d0
-        ind = 2
-     elseif ( lp <= 9 ) then
-        l = 3
-        sig =-1.0d0
-        ind = 1
-     elseif ( lp <= 16 ) then
-        l = 4
-        sig = 1.0d0
-        ind = 2
-     elseif ( lp <= 25 ) then
-        l = 5
-        sig = 1.0d0
-        ind = 1
-     elseif ( lp <= 36 ) then
-        l = 6
-        sig =-1.0d0
-        ind = 2
+     lp(lm) = lpl (ivl, jvl, lm)
+     if (lp(lm) == 1) then
+        l(lm) = 1
+        sig(lm) = 1.0d0
+        ind(lm) = 1
+     elseif ( lp(lm) <= 4) then
+        l(lm) = 2
+        sig(lm) = -1.0d0
+        ind(lm) = 2
+     elseif ( lp(lm) <= 9) then
+        l(lm) = 3
+        sig(lm) = -1.0d0
+        ind(lm) = 1
+     elseif ( lp(lm) <= 16) then
+        l(lm) = 4
+        sig(lm) = 1.0d0
+        ind(lm) = 2
+     elseif ( lp(lm) <= 25) then
+        l(lm) = 5
+        sig(lm) = 1.0d0
+        ind(lm) = 1
+     elseif ( lp(lm) <= 36) then
+        l(lm) = 6
+        sig(lm) = -1.0d0
+        ind(lm) = 2
      else
-        l = 7
-        sig =-1.0d0
-        ind = 1
+        l(lm) = 7
+        sig(lm) = -1.0d0
+        ind(lm) = 1
      endif
-     sig = sig * ap (lp, ivl, jvl)
+     sigap(lm) = sig(lm) * ap (lp(lm), ivl, jvl)
+  enddo
+  do lm = 1, lpx (ivl, jvl)
+     if ( lp(lm) < 1 .or. lp(lm) > 49 ) call errore ('qvan2', ' lp wrong ', max(lp(lm),1))
+  enddo
 
-     qm1 = -1.0_dp !  any number smaller than qmod(1)
 
+  qm1 = -1.0_dp !  any number smaller than qmod(1)
+  qmig = 1
+  do ig = 1, ngy
+     igl(ig) = ig
+  enddo
+  do ig = 1, ngy
+     IF ( ABS( qmod(ig) - qm1 ) > 1.0D-6 ) THEN
+        qm1 = qmod(ig)
+        qmig = ig
+     endif
+     igl(ig) = qmig
+  enddo
+
+  do lm = 1, lpx (ivl, jvl)
 !$omp parallel do default(shared), private(qm,px,ux,vx,wx,i0,i1,i2,i3,uvx,pwx,work)
      do ig = 1, ngy
-        !
-        ! calculate quantites depending on the module of G only when needed
-        !
-#if ! defined _OPENMP
-        IF ( ABS( qmod(ig) - qm1 ) > 1.0D-6 ) THEN
-#endif
            !
-           qm = qmod (ig) * dqi
+           qm = qmod (igl(ig)) * dqi
            px = qm - int (qm)
            ux = 1.d0 - px
            vx = 2.d0 - px
@@ -144,19 +159,16 @@ subroutine qvan2 (ngy, ih, jh, np, qmod, qg, ylmk0)
            i3 = i0 + 3
            uvx = ux * vx * sixth
            pwx = px * wx * 0.5d0
-           work = qrad (i0, ijv, l, np) * uvx * wx + &
-                  qrad (i1, ijv, l, np) * pwx * vx - &
-                  qrad (i2, ijv, l, np) * pwx * ux + &
-                  qrad (i3, ijv, l, np) * px * uvx
-#if ! defined _OPENMP
-           qm1 = qmod(ig)
-        END IF
-#endif
-        qg (ind,ig) = qg (ind,ig) + sig * ylmk0 (ig, lp) * work
+           work = qrad (i0, ijv, l(lm), np) * uvx * wx + &
+                  qrad (i1, ijv, l(lm), np) * pwx * vx - &
+                  qrad (i2, ijv, l(lm), np) * pwx * ux + &
+                  qrad (i3, ijv, l(lm), np) * px * uvx
+        qg (ind(lm),ig) = qg (ind(lm),ig) + sigap(lm) * ylmk0 (ig, lp(lm)) * work
      enddo
 !$omp end parallel do
 
   enddo
+  deallocate(lp, l, ind, sig, sigap)
 
   return
 end subroutine qvan2

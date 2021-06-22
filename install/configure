@@ -2383,7 +2383,7 @@ blacs_dir=$BLACS_LIB          # Where to look for libblacs.a
 ar=$AR                   # ar (shouldn't be needed)
 arflags=$ARFLAGS         # Flags for ar (as above)
 extlib_flags=$EXTLIB_FLAGS # Flags for internal copies of lapack and blas
-
+useftrace=$USEFTRACE
 
 
 
@@ -5637,6 +5637,12 @@ if test "$have_cpp" -ne 0
 then
         f90rule="\$(MPIF90) \$(F90FLAGS) -c \$<"
         echo "${ECHO_T}no"
+elif $useftrace ; then
+        f90rule="\$(CPP) \$(CPPFLAGS) \$< -o \$(*)_tmp2.f90 ; \\
+	      sed -e 's/gemm3m/gemm3m_/g' -e 's/GEMM3M/GEMM3M_/g' -e 's/ILAENV/ILAENV_/g' -e 's/ZHEGV(/ZHEGV_(/g' -e 's/ZHEGVX(/ZHEGVX_(/g' -e 's/descinit/descinit_/g' -e 's/ zpotrf(/ pzpotrf_(/g' -e 's/ pztrtri(/ pztrtri_(/g' -e 's/PZHEEVD(/PZHEEVD_(/g' -e 's/DSYRK/DSYRK_/g' -e 's/dsyrk/dsyrk_/g' -e 's/dtrmv/dtrmv_/g' -e 's/dtrmm/dtrmm_/g' -e 's/DTRMM/DTRMM_/g' -e 's/zgemv/zgemv_/g' -e 's/ZGEMV/ZGEMV_/g' -e 's/zherk/zherk_/g' -e 's/ZHERK/ZHERK_/g' -e 's/ztrmv/ztrmv_/g' -e 's/ztrmm/ztrmm_/g' -e 's/ZTRMM/ZTRMM_/g' -e '/gemm3m/b;s/gemm/gemm_/g' -e '/GEMM3M/b;s/GEMM/GEMM_/g' \$(*)_tmp2.f90 > \$(*)_tmp.f90 ; \\
+	      rm -f \$(*)_tmp2.f90 ; \\
+        \$(MPIF90) \$(F90FLAGS) -c \$(*)_tmp.f90 -o \$(*).o"
+        echo "${ECHO_T}yes"
 else
         f90rule="\$(CPP) \$(CPPFLAGS) \$< -o \$(*)_tmp.f90 ; \\
         \$(MPIF90) \$(F90FLAGS) -c \$(*)_tmp.f90 -o \$(*).o"

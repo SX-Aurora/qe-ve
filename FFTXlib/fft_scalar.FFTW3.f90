@@ -30,10 +30,18 @@
 
 ! ...   Local Parameter
 
+#if defined(__NEC)
+#if defined(_OPENMP)
+#include "aslfftw3.f03"
+#else
+#include "aslfftw3.f"
+#endif
+#else
 #if defined(_OPENMP)
 #include "fftw3.f03"
 #else
 #include "fftw3.f"
+#endif
 #endif
 
 !=----------------------------------------------------------------------=!
@@ -114,11 +122,21 @@
 #endif
 
      IF (isign < 0) THEN
+! nec ftrace
+#ifdef __NECFTRACE
+        CALL dfftw_execute_dft_fw_()
+#else
         CALL dfftw_execute_dft( fw_planz( ip), c, cout)
+#endif
         tscale = 1.0_DP / nz
         cout( 1 : ldz * nsl ) = cout( 1 : ldz * nsl ) * tscale
      ELSE IF (isign > 0) THEN
+! nec ftrace
+#if defined(__NECFTRACE)
+        CALL dfftw_execute_dft_bw_()
+#else
         CALL dfftw_execute_dft( bw_planz( ip), c, cout)
+#endif
      END IF
 
 #if defined(__FFT_CLOCKS)
@@ -128,7 +146,6 @@
      RETURN
 
    CONTAINS
-
      SUBROUTINE lookup()
         ! lookup for stored plan 
         DO ip = 1, ndims
@@ -161,6 +178,14 @@
        ip = icurrent
        icurrent = MOD( icurrent, ndims ) + 1
      END SUBROUTINE init_plan
+
+     SUBROUTINE dfftw_execute_dft_fw_()
+       CALL dfftw_execute_dft( fw_planz( ip), c, cout)
+     END SUBROUTINE dfftw_execute_dft_fw_
+
+     SUBROUTINE dfftw_execute_dft_bw_()
+       CALL dfftw_execute_dft( bw_planz( ip), c, cout)
+     END SUBROUTINE dfftw_execute_dft_bw_
 
    END SUBROUTINE cft_1z
 

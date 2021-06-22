@@ -1,3 +1,4 @@
+#
 # Copyright (C) 2001-2016 Quantum ESPRESSO group
 #
 # This program is free software; you can redistribute it and/or
@@ -88,9 +89,9 @@ libfox:
 	if test ! -d ../FoX; then \
         mkdir ../FoX; \
 	(gzip -dc ../archive/fox.tgz | (cd ../FoX; tar -xvf -)); \
-	cd ../FoX/fox/; export FC=$(F90); export FCFLAGS="$(FOX_FLAGS)"; \
-	./configure --prefix=$(TOPDIR)/FoX ;\
-	$(MAKE) install; cd ../; rm -fr fox;fi
+	cd ../FoX/fox/; ./configure   --prefix="$(TOPDIR)/FoX/" FC='$(F90)' \
+          --host=aurora-nec-veos FCFLAGS='-fno-fast-math ' RANLIB=$(RANLIB) AR=$(AR) ; \
+	$(MAKE) install; cd ../;fi #rm -fr fox; fi
 # ELPA
 libelpa : libelpa_$(ELPA_LIBS_SWITCH)
 
