@@ -34,7 +34,7 @@ sh make.sh
 After, configure it with "conf_with_elpa.sh" and make it.
 
 ```
-./conf.sh
+./conf_with_elpa.sh
 make pw
 ```
 
