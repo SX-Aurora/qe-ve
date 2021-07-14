@@ -1,0 +1,858 @@
+diff -uprN elpa.org/config.guess elpa/config.guess
+--- elpa.org/config.guess	2021-07-13 20:52:22.896196000 +0900
++++ elpa/config.guess	2021-07-14 17:44:01.351761000 +0900
+@@ -153,16 +153,6 @@ Linux|GNU|GNU/*)
+ 	;;
+ esac
+ 
+-case "${UNAME_MACHINE}" in
+-  i?86)
+-     test -z "$VENDOR" && VENDOR=pc
+-     ;;
+-  *)
+-     test -z "$VENDOR" && VENDOR=unknown
+-     ;;
+-esac
+-test -f /etc/SuSE-release -o -f /.buildenv && VENDOR=suse
+-
+ # Note: order is significant - the case branches are not exclusive.
+ 
+ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
+@@ -227,23 +217,23 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:$
+ 	exit ;;
+     *:Bitrig:*:*)
+ 	UNAME_MACHINE_ARCH=`arch | sed 's/Bitrig.//'`
+-	echo ${UNAME_MACHINE_ARCH}-${VENDOR}-bitrig${UNAME_RELEASE}
++	echo ${UNAME_MACHINE_ARCH}-unknown-bitrig${UNAME_RELEASE}
+ 	exit ;;
+     *:OpenBSD:*:*)
+ 	UNAME_MACHINE_ARCH=`arch | sed 's/OpenBSD.//'`
+-	echo ${UNAME_MACHINE_ARCH}-${VENDOR}-openbsd${UNAME_RELEASE}
++	echo ${UNAME_MACHINE_ARCH}-unknown-openbsd${UNAME_RELEASE}
+ 	exit ;;
+     *:ekkoBSD:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-ekkobsd${UNAME_RELEASE}
++	echo ${UNAME_MACHINE}-unknown-ekkobsd${UNAME_RELEASE}
+ 	exit ;;
+     *:SolidBSD:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-solidbsd${UNAME_RELEASE}
++	echo ${UNAME_MACHINE}-unknown-solidbsd${UNAME_RELEASE}
+ 	exit ;;
+     macppc:MirBSD:*:*)
+-	echo powerpc-${VENDOR}-mirbsd${UNAME_RELEASE}
++	echo powerpc-unknown-mirbsd${UNAME_RELEASE}
+ 	exit ;;
+     *:MirBSD:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-mirbsd${UNAME_RELEASE}
++	echo ${UNAME_MACHINE}-unknown-mirbsd${UNAME_RELEASE}
+ 	exit ;;
+     alpha:OSF1:*:*)
+ 	case $UNAME_RELEASE in
+@@ -311,13 +301,13 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:$
+ 	echo alpha-dec-winnt3.5
+ 	exit ;;
+     Amiga*:UNIX_System_V:4.0:*)
+-	echo m68k-${VENDOR}-sysv4
++	echo m68k-unknown-sysv4
+ 	exit ;;
+     *:[Aa]miga[Oo][Ss]:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-amigaos
++	echo ${UNAME_MACHINE}-unknown-amigaos
+ 	exit ;;
+     *:[Mm]orph[Oo][Ss]:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-morphos
++	echo ${UNAME_MACHINE}-unknown-morphos
+ 	exit ;;
+     *:OS/390:*:*)
+ 	echo i370-ibm-openedition
+@@ -332,7 +322,7 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:$
+ 	echo arm-acorn-riscix${UNAME_RELEASE}
+ 	exit ;;
+     arm*:riscos:*:*|arm*:RISCOS:*:*)
+-	echo arm-${VENDOR}-riscos
++	echo arm-unknown-riscos
+ 	exit ;;
+     SR2?01:HI-UX/MPP:*:* | SR8000:HI-UX/MPP:*:*)
+ 	echo hppa1.1-hitachi-hiuxmpp
+@@ -440,7 +430,7 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:$
+ 	echo m68k-hades-mint${UNAME_RELEASE}
+ 	exit ;;
+     *:*MiNT:*:* | *:*mint:*:* | *:*TOS:*:*)
+-	echo m68k-${VENDOR}-mint${UNAME_RELEASE}
++	echo m68k-unknown-mint${UNAME_RELEASE}
+ 	exit ;;
+     m68k:machten:*:*)
+ 	echo m68k-apple-machten${UNAME_RELEASE}
+@@ -751,9 +741,9 @@ EOF
+ 	exit ;;
+     i*86:OSF1:*:*)
+ 	if [ -x /usr/sbin/sysversion ] ; then
+-	    echo ${UNAME_MACHINE}-${VENDOR}-osf1mk
++	    echo ${UNAME_MACHINE}-unknown-osf1mk
+ 	else
+-	    echo ${UNAME_MACHINE}-${VENDOR}-osf1
++	    echo ${UNAME_MACHINE}-unknown-osf1
+ 	fi
+ 	exit ;;
+     parisc*:Lites*:*:*)
+@@ -813,18 +803,18 @@ EOF
+ 	echo ${UNAME_MACHINE}-pc-bsdi${UNAME_RELEASE}
+ 	exit ;;
+     sparc*:BSD/OS:*:*)
+-	echo sparc-${VENDOR}-bsdi${UNAME_RELEASE}
++	echo sparc-unknown-bsdi${UNAME_RELEASE}
+ 	exit ;;
+     *:BSD/OS:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-bsdi${UNAME_RELEASE}
++	echo ${UNAME_MACHINE}-unknown-bsdi${UNAME_RELEASE}
+ 	exit ;;
+     *:FreeBSD:*:*)
+ 	UNAME_PROCESSOR=`/usr/bin/uname -p`
+ 	case ${UNAME_PROCESSOR} in
+ 	    amd64)
+-		echo x86_64-${VENDOR}-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
++		echo x86_64-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+ 	    *)
+-		echo ${UNAME_PROCESSOR}-${VENDOR}-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
++		echo ${UNAME_PROCESSOR}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+ 	esac
+ 	exit ;;
+     i*:CYGWIN*:*)
+@@ -852,10 +842,10 @@ EOF
+ 		echo i586-pc-interix${UNAME_RELEASE}
+ 		exit ;;
+ 	    authenticamd | genuineintel | EM64T)
+-		echo x86_64-${VENDOR}-interix${UNAME_RELEASE}
++		echo x86_64-unknown-interix${UNAME_RELEASE}
+ 		exit ;;
+ 	    IA64)
+-		echo ia64-${VENDOR}-interix${UNAME_RELEASE}
++		echo ia64-unknown-interix${UNAME_RELEASE}
+ 		exit ;;
+ 	esac ;;
+     [345]86:Windows_95:* | [345]86:Windows_98:* | [345]86:Windows_NT:*)
+@@ -874,31 +864,31 @@ EOF
+ 	echo ${UNAME_MACHINE}-pc-uwin
+ 	exit ;;
+     amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+-	echo x86_64-${VENDOR}-cygwin
++	echo x86_64-unknown-cygwin
+ 	exit ;;
+     p*:CYGWIN*:*)
+-	echo powerpcle-${VENDOR}-cygwin
++	echo powerpcle-unknown-cygwin
+ 	exit ;;
+     prep*:SunOS:5.*:*)
+-	echo powerpcle-${VENDOR}-solaris2`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
++	echo powerpcle-unknown-solaris2`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
+ 	exit ;;
+     *:GNU:*:*)
+ 	# the GNU system
+-	echo `echo ${UNAME_MACHINE}|sed -e 's,[-/].*$,,'`-${VENDOR}-${LIBC}`echo ${UNAME_RELEASE}|sed -e 's,/.*$,,'`
++	echo `echo ${UNAME_MACHINE}|sed -e 's,[-/].*$,,'`-unknown-${LIBC}`echo ${UNAME_RELEASE}|sed -e 's,/.*$,,'`
+ 	exit ;;
+     *:GNU/*:*:*)
+ 	# other systems with GNU libc and userland
+-	echo ${UNAME_MACHINE}-${VENDOR}-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr '[A-Z]' '[a-z]'``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr '[A-Z]' '[a-z]'``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-${LIBC}
+ 	exit ;;
+     i*86:Minix:*:*)
+ 	echo ${UNAME_MACHINE}-pc-minix
+ 	exit ;;
+     aarch64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     aarch64_be:Linux:*:*)
+ 	UNAME_MACHINE=aarch64_be
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     alpha:Linux:*:*)
+ 	case `sed -n '/^cpu model/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo` in
+@@ -912,29 +902,29 @@ EOF
+ 	esac
+ 	objdump --private-headers /bin/sh | grep -q ld.so.1
+ 	if test "$?" = 0 ; then LIBC="gnulibc1" ; fi
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     arc:Linux:*:* | arceb:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     arm*:Linux:*:*)
+ 	eval $set_cc_for_build
+ 	if echo __ARM_EABI__ | $CC_FOR_BUILD -E - 2>/dev/null \
+ 	    | grep -q __ARM_EABI__
+ 	then
+-	    echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	    echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	else
+ 	    if echo __ARM_PCS_VFP | $CC_FOR_BUILD -E - 2>/dev/null \
+ 		| grep -q __ARM_PCS_VFP
+ 	    then
+-		echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}eabi
++		echo ${UNAME_MACHINE}-unknown-linux-${LIBC}eabi
+ 	    else
+-		echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}eabihf
++		echo ${UNAME_MACHINE}-unknown-linux-${LIBC}eabihf
+ 	    fi
+ 	fi
+ 	exit ;;
+     avr32*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     cris:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-axis-linux-${LIBC}
+@@ -943,22 +933,22 @@ EOF
+ 	echo ${UNAME_MACHINE}-axis-linux-${LIBC}
+ 	exit ;;
+     frv:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     hexagon:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     i*86:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-pc-linux-${LIBC}
+ 	exit ;;
+     ia64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     m32r*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     m68*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     mips:Linux:*:* | mips64:Linux:*:*)
+ 	eval $set_cc_for_build
+@@ -977,63 +967,63 @@ EOF
+ 	#endif
+ EOF
+ 	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^CPU'`
+-	test x"${CPU}" != x && { echo "${CPU}-${VENDOR}-linux-${LIBC}"; exit; }
++	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-${LIBC}"; exit; }
+ 	;;
+     or1k:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     or32:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     padre:Linux:*:*)
+-	echo sparc-${VENDOR}-linux-${LIBC}
++	echo sparc-unknown-linux-${LIBC}
+ 	exit ;;
+     parisc64:Linux:*:* | hppa64:Linux:*:*)
+-	echo hppa64-${VENDOR}-linux-${LIBC}
++	echo hppa64-unknown-linux-${LIBC}
+ 	exit ;;
+     parisc:Linux:*:* | hppa:Linux:*:*)
+ 	# Look for CPU level
+ 	case `grep '^cpu[^a-z]*:' /proc/cpuinfo 2>/dev/null | cut -d' ' -f2` in
+-	  PA7*) echo hppa1.1-${VENDOR}-linux-${LIBC} ;;
+-	  PA8*) echo hppa2.0-${VENDOR}-linux-${LIBC} ;;
+-	  *)    echo hppa-${VENDOR}-linux-${LIBC} ;;
++	  PA7*) echo hppa1.1-unknown-linux-${LIBC} ;;
++	  PA8*) echo hppa2.0-unknown-linux-${LIBC} ;;
++	  *)    echo hppa-unknown-linux-${LIBC} ;;
+ 	esac
+ 	exit ;;
+     ppc64:Linux:*:*)
+-	echo powerpc64-${VENDOR}-linux-${LIBC}
++	echo powerpc64-unknown-linux-${LIBC}
+ 	exit ;;
+     ppc:Linux:*:*)
+-	echo powerpc-${VENDOR}-linux-${LIBC}
++	echo powerpc-unknown-linux-${LIBC}
+ 	exit ;;
+     ppc64le:Linux:*:*)
+-	echo powerpc64le-${VENDOR}-linux-${LIBC}
++	echo powerpc64le-unknown-linux-${LIBC}
+ 	exit ;;
+     ppcle:Linux:*:*)
+-	echo powerpcle-${VENDOR}-linux-${LIBC}
++	echo powerpcle-unknown-linux-${LIBC}
+ 	exit ;;
+     s390:Linux:*:* | s390x:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-ibm-linux-${LIBC}
+ 	exit ;;
+     sh64*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     sh*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     sparc:Linux:*:* | sparc64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     tile*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     vax:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-dec-linux-${LIBC}
+ 	exit ;;
+     x86_64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     xtensa*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+ 	exit ;;
+     i*86:DYNIX/ptx:4*:*)
+ 	# ptx 4.0 does uname -s correctly, with DYNIX/ptx in there.
+@@ -1055,16 +1045,16 @@ EOF
+ 	echo ${UNAME_MACHINE}-pc-os2-emx
+ 	exit ;;
+     i*86:XTS-300:*:STOP)
+-	echo ${UNAME_MACHINE}-${VENDOR}-stop
++	echo ${UNAME_MACHINE}-unknown-stop
+ 	exit ;;
+     i*86:atheos:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-atheos
++	echo ${UNAME_MACHINE}-unknown-atheos
+ 	exit ;;
+     i*86:syllable:*:*)
+ 	echo ${UNAME_MACHINE}-pc-syllable
+ 	exit ;;
+     i*86:LynxOS:2.*:* | i*86:LynxOS:3.[01]*:* | i*86:LynxOS:4.[02]*:*)
+-	echo i386-${VENODR}-lynxos${UNAME_RELEASE}
++	echo i386-unknown-lynxos${UNAME_RELEASE}
+ 	exit ;;
+     i*86:*DOS:*:*)
+ 	echo ${UNAME_MACHINE}-pc-msdosdjgpp
+@@ -1084,7 +1074,7 @@ EOF
+ 	    *Pentium)	     UNAME_MACHINE=i586 ;;
+ 	    *Pent*|*Celeron) UNAME_MACHINE=i686 ;;
+ 	esac
+-	echo ${UNAME_MACHINE}-${VENDOR}-sysv${UNAME_RELEASE}${UNAME_SYSTEM}${UNAME_VERSION}
++	echo ${UNAME_MACHINE}-unknown-sysv${UNAME_RELEASE}${UNAME_SYSTEM}${UNAME_VERSION}
+ 	exit ;;
+     i*86:*:3.2:*)
+ 	if test -f /usr/options/cb.name; then
+@@ -1123,7 +1113,7 @@ EOF
+ 	if grep Stardent /usr/include/sys/uadmin.h >/dev/null 2>&1 ; then
+ 	  echo i860-stardent-sysv${UNAME_RELEASE} # Stardent Vistra i860-SVR4
+ 	else # Add other i860-SVR4 vendors below as they are discovered.
+-	  echo i860-${VENODR}-sysv${UNAME_RELEASE}  # Unknown i860-SVR4
++	  echo i860-unknown-sysv${UNAME_RELEASE}  # Unknown i860-SVR4
+ 	fi
+ 	exit ;;
+     mini*:CTIX:SYS*5:*)
+@@ -1160,19 +1150,19 @@ EOF
+ 	/bin/uname -p 2>/dev/null | /bin/grep pteron >/dev/null \
+ 	    && { echo i586-ncr-sysv4.3${OS_REL}; exit; } ;;
+     m68*:LynxOS:2.*:* | m68*:LynxOS:3.0*:*)
+-	echo m68k-${VENDOR}-lynxos${UNAME_RELEASE}
++	echo m68k-unknown-lynxos${UNAME_RELEASE}
+ 	exit ;;
+     mc68030:UNIX_System_V:4.*:*)
+ 	echo m68k-atari-sysv4
+ 	exit ;;
+     TSUNAMI:LynxOS:2.*:*)
+-	echo sparc-${VENDOR}-lynxos${UNAME_RELEASE}
++	echo sparc-unknown-lynxos${UNAME_RELEASE}
+ 	exit ;;
+     rs6000:LynxOS:2.*:*)
+-	echo rs6000-${VENDOR}-lynxos${UNAME_RELEASE}
++	echo rs6000-unknown-lynxos${UNAME_RELEASE}
+ 	exit ;;
+     PowerPC:LynxOS:2.*:* | PowerPC:LynxOS:3.[01]*:* | PowerPC:LynxOS:4.[02]*:*)
+-	echo powerpc-${VENDOR}-lynxos${UNAME_RELEASE}
++	echo powerpc-unknown-lynxos${UNAME_RELEASE}
+ 	exit ;;
+     SM[BE]S:UNIX_SV:*:*)
+ 	echo mips-dde-sysv${UNAME_RELEASE}
+@@ -1222,7 +1212,7 @@ EOF
+ 	if [ -d /usr/nec ]; then
+ 		echo mips-nec-sysv${UNAME_RELEASE}
+ 	else
+-		echo mips-${VENDOR}-sysv${UNAME_RELEASE}
++		echo mips-unknown-sysv${UNAME_RELEASE}
+ 	fi
+ 	exit ;;
+     BeBox:BeOS:*:*)	# BeOS running on hardware made by Be, PPC only.
+@@ -1238,7 +1228,7 @@ EOF
+ 	echo i586-pc-haiku
+ 	exit ;;
+     x86_64:Haiku:*:*)
+-	echo x86_64-${VENDOR}-haiku
++	echo x86_64-unknown-haiku
+ 	exit ;;
+     SX-4:SUPER-UX:*:*)
+ 	echo sx4-nec-superux${UNAME_RELEASE}
+@@ -1321,13 +1311,13 @@ EOF
+ 	else
+ 	    UNAME_MACHINE="$cputype"
+ 	fi
+-	echo ${UNAME_MACHINE}-${VENDOR}-plan9
++	echo ${UNAME_MACHINE}-unknown-plan9
+ 	exit ;;
+     *:TOPS-10:*:*)
+-	echo pdp10-${VENDOR}-tops10
++	echo pdp10-unknown-tops10
+ 	exit ;;
+     *:TENEX:*:*)
+-	echo pdp10-${VENDOR}-tenex
++	echo pdp10-unknown-tenex
+ 	exit ;;
+     KS10:TOPS-20:*:* | KL10:TOPS-20:*:* | TYPE4:TOPS-20:*:*)
+ 	echo pdp10-dec-tops20
+@@ -1336,16 +1326,16 @@ EOF
+ 	echo pdp10-xkl-tops20
+ 	exit ;;
+     *:TOPS-20:*:*)
+-	echo pdp10-${VENDOR}-tops20
++	echo pdp10-unknown-tops20
+ 	exit ;;
+     *:ITS:*:*)
+-	echo pdp10-${VENDOR}-its
++	echo pdp10-unknown-its
+ 	exit ;;
+     SEI:*:*:SEIUX)
+ 	echo mips-sei-seiux${UNAME_RELEASE}
+ 	exit ;;
+     *:DragonFly:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-dragonfly`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`
++	echo ${UNAME_MACHINE}-unknown-dragonfly`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`
+ 	exit ;;
+     *:*VMS:*:*)
+ 	UNAME_MACHINE=`(uname -p) 2>/dev/null`
+@@ -1367,7 +1357,7 @@ EOF
+ 	echo ${UNAME_MACHINE}-pc-aros
+ 	exit ;;
+     x86_64:VMkernel:*:*)
+-	echo ${UNAME_MACHINE}-${VENDOR}-esx
++	echo ${UNAME_MACHINE}-unknown-esx
+ 	exit ;;
+ esac
+ 
+diff -uprN elpa.org/config.sub elpa/config.sub
+--- elpa.org/config.sub	2021-07-13 20:52:22.908172000 +0900
++++ elpa/config.sub	2021-07-14 17:44:01.360940000 +0900
+@@ -2,6 +2,8 @@
+ # Configuration validation subroutine script.
+ #   Copyright 1992-2013 Free Software Foundation, Inc.
+ 
++# Changes by NEC Corporation for the VE port, 2017-2018
++
+ timestamp='2013-04-24'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+@@ -312,7 +314,7 @@ case $basic_machine in
+ 	| v850 | v850e | v850e1 | v850e2 | v850es | v850e2v3 \
+ 	| we32k \
+ 	| x86 | xc16x | xstormy16 | xtensa \
+-	| z8k | z80)
++	| z8k | z80 |ve)
+ 		basic_machine=$basic_machine-unknown
+ 		;;
+ 	c54x)
+@@ -434,7 +436,7 @@ case $basic_machine in
+ 	| x86-* | x86_64-* | xc16x-* | xps100-* \
+ 	| xstormy16-* | xtensa*-* \
+ 	| ymp-* \
+-	| z8k-* | z80-*)
++	| z8k-* | z80-* | ve-*)
+ 		;;
+ 	# Recognize the basic CPU types without company name, with glob match.
+ 	xtensa*)
+@@ -1006,7 +1008,7 @@ case $basic_machine in
+ 		;;
+ 	ppc64)	basic_machine=powerpc64-unknown
+ 		;;
+-	ppc64-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
++	ppc64-* | ppc64p7-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
+ 		;;
+ 	ppc64le | powerpc64little | ppc64-le | powerpc64-little)
+ 		basic_machine=powerpc64le-unknown
+diff -uprN elpa.org/configure elpa/configure
+--- elpa.org/configure	2021-07-13 20:52:22.928860000 +0900
++++ elpa/configure	2021-07-14 17:44:01.398031000 +0900
+@@ -2999,6 +2999,46 @@ ac_cpp='$CPP $CPPFLAGS'
+ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ ac_compiler_gnu=$ac_cv_c_compiler_gnu
++ if [[ $host == ve-*-* ]] ; then
++# Extract the first word of "ncc", so it can be a program name with args.
++set dummy ncc; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_CC+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$CC"; then
++  ac_cv_prog_CC="$CC" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++as_dummy=""$PATH:/opt/nec/ve/bin""
++for as_dir in $as_dummy
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_CC="/opt/nec/ve/bin/ncc"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++CC=$ac_cv_prog_CC
++if test -n "$CC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CC" >&5
++$as_echo "$CC" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++fi
+ if test -n "$ac_tool_prefix"; then
+   # Extract the first word of "${ac_tool_prefix}gcc", so it can be a program name with args.
+ set dummy ${ac_tool_prefix}gcc; ac_word=$2
+@@ -11844,10 +11884,14 @@ fi
+   # before this can be enabled.
+   hardcode_into_libs=yes
+ 
++  # Add ABI-specific directories to the system library path.
++  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
++
+   # Append ld.so.conf contents to the search path
+   if test -f /etc/ld.so.conf; then
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
+-    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
++    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
++
+   fi
+ 
+   # We used to test for /lib/ld.so.1 and disable shared libraries on
+@@ -12047,6 +12091,12 @@ uts4*)
+   dynamic_linker=no
+   ;;
+ esac
++case $host in
++ve-unknown-linux-gnu)
++ finish_cmds='/opt/nec/ve/glibc/sbin/ldconfig -n $libdir'
++  ;;
++esac
++
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $dynamic_linker" >&5
+ $as_echo "$dynamic_linker" >&6; }
+ test "$dynamic_linker" = no && can_build_shared=no
+@@ -15380,10 +15430,14 @@ fi
+   # before this can be enabled.
+   hardcode_into_libs=yes
+ 
++  # Add ABI-specific directories to the system library path.
++  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
++
+   # Append ld.so.conf contents to the search path
+   if test -f /etc/ld.so.conf; then
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
+-    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
++    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
++
+   fi
+ 
+   # We used to test for /lib/ld.so.1 and disable shared libraries on
+@@ -15583,6 +15637,12 @@ uts4*)
+   dynamic_linker=no
+   ;;
+ esac
++case $host in
++ve-unknown-linux-gnu)
++ finish_cmds='/opt/nec/ve/glibc/sbin/ldconfig -n $libdir'
++  ;;
++esac
++
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $dynamic_linker" >&5
+ $as_echo "$dynamic_linker" >&6; }
+ test "$dynamic_linker" = no && can_build_shared=no
+diff -uprN elpa.org/ltmain.sh elpa/ltmain.sh
+--- elpa.org/ltmain.sh	2021-07-13 20:52:22.968279000 +0900
++++ elpa/ltmain.sh	2021-07-14 17:44:01.412711000 +0900
+@@ -28,6 +28,8 @@
+ # or obtained by writing to the Free Software Foundation, Inc.,
+ # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ 
++# Changes by NEC Corporation for the VE port, 2017-2018
++
+ # Usage: $progname [OPTION]... [MODE-ARG]...
+ #
+ # Provide generalized library-building support services.
+@@ -738,14 +740,25 @@ func_usage ()
+ {
+     $opt_debug
+ 
++    if test "$progpath"="/opt/nec/ve/bin/libtool"; then
+     $SED -n '/^# Usage:/,/^#  *.*--help/ {
+         s/^# //
+ 	s/^# *$//
+-	s/\$progname/'$progname'/
++	s/\$progname/\/opt\/nec\/ve\/bin\/libtool/
+ 	p
+     }' < "$progpath"
+     echo
++    $ECHO "run \`$progpath --help | more' for full usage"
++    else
++    $SED -n '/^# Usage:/,/^#  *.*--help/ {
++        s/^# //
++        s/^# *$//
++        s/\$progname/'$progpath'/
++        p
++    }' < "$progpath"
++    echo
+     $ECHO "run \`$progname --help | more' for full usage"
++    fi
+     exit $?
+ }
+ 
+@@ -756,11 +769,12 @@ func_help ()
+ {
+     $opt_debug
+ 
++    if test "$progpath"="/opt/nec/ve/bin/libtool"; then
+     $SED -n '/^# Usage:/,/# Report bugs to/ {
+ 	:print
+         s/^# //
+ 	s/^# *$//
+-	s*\$progname*'$progname'*
++	s*\$progname*\/opt\/nec\/ve\/bin\/libtool*
+ 	s*\$host*'"$host"'*
+ 	s*\$SHELL*'"$SHELL"'*
+ 	s*\$LTCC*'"$LTCC"'*
+@@ -775,6 +789,27 @@ func_help ()
+      /^# .* home page:/b print
+      /^# General help using/b print
+      ' < "$progpath"
++     else
++     $SED -n '/^# Usage:/,/# Report bugs to/ {
++        :print
++        s/^# //
++        s/^# *$//
++        s*\$progname*'$progname'*
++        s*\$host*'"$host"'*
++        s*\$SHELL*'"$SHELL"'*
++        s*\$LTCC*'"$LTCC"'*
++        s*\$LTCFLAGS*'"$LTCFLAGS"'*
++        s*\$LD*'"$LD"'*
++        s/\$with_gnu_ld/'"$with_gnu_ld"'/
++        s/\$automake_version/'"`(${AUTOMAKE-automake} --version) 2>/dev/null |$SED 1q`"'/
++        s/\$autoconf_version/'"`(${AUTOCONF-autoconf} --version) 2>/dev/null |$SED 1q`"'/
++        p
++        d
++     }
++     /^# .* home page:/b print
++     /^# General help using/b print
++     ' < "$progpath"
++     fi
+     ret=$?
+     if test -z "$1"; then
+       exit $ret
+@@ -2239,7 +2274,7 @@ compiler."
+ 	# Don't build PIC code
+ 	command="$base_compile $qsrcfile$pie_flag"
+       else
+-	command="$base_compile $qsrcfile $pic_flag"
++        command="$base_compile $qsrcfile $pic_flag"
+       fi
+       if test "$compiler_c_o" = yes; then
+ 	func_append command " -o $obj"
+@@ -2296,6 +2331,10 @@ $opt_help || {
+ 
+ func_mode_help ()
+ {
++    if test "$progpath"="/opt/nec/ve/bin/libtool"; then
++    progname=$progpath
++    fi
++
+     # We need to display help for each of the modes.
+     case $opt_mode in
+       "")
+@@ -2631,14 +2670,22 @@ func_mode_execute ()
+       done
+ 
+       # Now prepare to actually exec the command.
++      if test "$progpath" = "/opt/nec/ve/bin/libtool"; then
++      exec_cmd="/opt/nec/ve/bin/ve_exec \$cmd$args"
++      else
+       exec_cmd="\$cmd$args"
++      fi
+     else
+       # Display what would be done.
+       if test -n "$shlibpath_var"; then
+ 	eval "\$ECHO \"\$shlibpath_var=\$$shlibpath_var\""
+ 	echo "export $shlibpath_var"
+       fi
++      if test "$progpath" = "/opt/nec/ve/bin/libtool"; then
++      $ECHO "/opt/nec/ve/bin/ve_exec $cmd$args"
++      else
+       $ECHO "$cmd$args"
++      fi
+       exit $EXIT_SUCCESS
+     fi
+ }
+@@ -2653,6 +2700,7 @@ func_mode_finish ()
+     libs=
+     libdirs=
+     admincmds=
++    base_compile="$nonopt $@"
+ 
+     for opt in "$nonopt" ${1+"$@"}
+     do
+@@ -2695,6 +2743,11 @@ func_mode_finish ()
+       fi
+     fi
+ 
++    # Changes to add VE specific "ldconfig" path
++    if test "$CC" = "/opt/nec/ve/bin/ncc" || test "$progpath" = "/opt/nec/ve/bin/libtool"; then
++       finish_cmds='/opt/nec/ve/glibc/sbin/ldconfig -n $libdir'
++    fi
++
+     if test -n "$finish_cmds$finish_eval" && test -n "$libdirs"; then
+       for libdir in $libdirs; do
+ 	if test -n "$finish_cmds"; then
+@@ -3494,7 +3547,12 @@ static const void *lt_preloaded_setup()
+ 	done
+ 
+ 	# Now compile the dynamic symbol file.
+-	func_show_eval '(cd $output_objdir && $LTCC$symtab_cflags -c$no_builtin_flag$pic_flag_for_symtable "$my_dlsyms")' 'exit $?'
++	if test "$CC" = "/opt/nec/ve/bin/ncc"; then
++        symtab_cflags_ncc=" -fPIC"
++        func_show_eval '(cd $output_objdir && $CC$symtab_cflags_ncc -c$pic_flag_for_symtable "$my_dlsyms")' 'exit $?'
++        else
++        func_show_eval '(cd $output_objdir && $LTCC$symtab_cflags -c$no_builtin_flag$pic_flag_for_symtable "$my_dlsyms")' 'exit $?'
++        fi
+ 
+ 	# Clean up the generated files.
+ 	func_show_eval '$RM "$output_objdir/$my_dlsyms" "$nlist" "${nlist}S" "${nlist}T"'
+@@ -5114,6 +5172,7 @@ func_mode_link ()
+     esac
+     libtool_args=$nonopt
+     base_compile="$nonopt $@"
++    base_compile1="$nonopt $@"
+     compile_command=$nonopt
+     finalize_command=$nonopt
+ 
+@@ -5163,6 +5222,12 @@ func_mode_link ()
+     weak_libs=
+     single_module="${wl}-single_module"
+     func_infer_tag $base_compile
++    # To add the VE specific linker flag which required for library linking.
++    base_compile1=`$ECHO "$base_compile" | awk '{print $1}'`
++    if test "$base_compile1" = "/opt/nec/ve/bin/ncc"; then
++        CC=/opt/nec/ve/bin/ncc;
++        archive_cmds="\$CC -shared \$pic_flag \$libobjs \$deplibs \$compiler_flags \${wl}-soname \$wl\$soname -o \$lib"
++    fi
+ 
+     # We need to know -static, to get the right output filenames.
+     for arg
+@@ -7536,7 +7601,6 @@ func_mode_link ()
+ 	fi
+ 
+       fi
+-
+       func_generate_dlsyms "$libname" "$libname" "yes"
+       func_append libobjs " $symfileobj"
+       test "X$libobjs" = "X " && libobjs=
+@@ -8896,7 +8960,6 @@ EOF
+ 	# Replace the output file specification.
+ 	compile_command=`$ECHO "$compile_command" | $SED 's%@OUTPUT@%'"$output"'%g'`
+ 	link_command="$compile_command$compile_rpath"
+-
+ 	# We have no uninstalled library dependencies, so finalize right now.
+ 	exit_status=0
+ 	func_show_eval "$link_command" 'exit_status=$?'
+@@ -8971,7 +9034,7 @@ EOF
+ 	func_warning "\`$output' will be relinked during installation"
+       else
+ 	if test "$fast_install" != no; then
+-	  link_command="$finalize_var$compile_command$finalize_rpath"
++		link_command="$finalize_var$compile_command$finalize_rpath"
+ 	  if test "$fast_install" = yes; then
+ 	    relink_command=`$ECHO "$compile_var$compile_command$compile_rpath" | $SED 's%@OUTPUT@%\$progdir/\$file%g'`
+ 	  else
+@@ -8979,7 +9042,7 @@ EOF
+ 	    relink_command=
+ 	  fi
+ 	else
+-	  link_command="$compile_var$compile_command$compile_rpath"
++		link_command="$compile_var$compile_command$compile_rpath"
+ 	  relink_command="$finalize_var$finalize_command$finalize_rpath"
+ 	fi
+       fi
+diff -uprN elpa.org/m4/libtool.m4 elpa/m4/libtool.m4
+--- elpa.org/m4/libtool.m4	2021-07-13 20:52:22.985309000 +0900
++++ elpa/m4/libtool.m4	2021-07-14 17:44:01.436911000 +0900
+@@ -9,6 +9,8 @@
+ # unlimited permission to copy and/or distribute it, with or without
+ # modifications, as long as this notice is preserved.
+ 
++#Changes by NEC Corporation for the VE port, 2017-2018
++
+ m4_define([_LT_COPYING], [dnl
+ #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
+ #                 2006, 2007, 2008, 2009, 2010, 2011 Free Software
+@@ -2669,10 +2671,14 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu)
+   # before this can be enabled.
+   hardcode_into_libs=yes
+ 
++  # Add ABI-specific directories to the system library path.
++  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
++
+   # Append ld.so.conf contents to the search path
+   if test -f /etc/ld.so.conf; then
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
+-    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
++    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
++
+   fi
+ 
+   # We used to test for /lib/ld.so.1 and disable shared libraries on
+@@ -2872,6 +2878,12 @@ uts4*)
+   dynamic_linker=no
+   ;;
+ esac
++case $host in
++ve-unknown-linux-gnu)
++ finish_cmds='/opt/nec/ve/glibc/sbin/ldconfig -n $libdir'
++  ;;
++esac
++
+ AC_MSG_RESULT([$dynamic_linker])
+ test "$dynamic_linker" = no && can_build_shared=no
+ 
+diff -uprN elpa.org/make.sh elpa/make.sh
+--- elpa.org/make.sh	1970-01-01 09:00:00.000000000 +0900
++++ elpa/make.sh	2021-07-14 17:44:26.364024000 +0900
+@@ -0,0 +1,9 @@
++#!/bi/sh
++
++./autogen.sh
++./configure --enable-shared=no CC=mpincc FC=mpinfort FCFLAGS="-lblas_sequential -lscalapack -llapack"
++make
++sed -e "s/AM_FCFLAGS =  -Imodules -module \${ac_empty}modules/AM_FCFLAGS =  -Imodules -module/" Makefile > temp
++mv temp Makefile
++make
++ar cr libelpa.a src/*.o

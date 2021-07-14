@@ -8,6 +8,8 @@
 
 ## USAGE
 
+### Basic usage
+
 Quick installation instructions for the impatient:
 
 ```
@@ -16,6 +18,25 @@ make pw
 ```
 
 Only "pw" is supported now.
+
+### How to use ELPA
+
+ELPA is available as eigen-solver. First, install ELPA on the top directory as follows. Note that the following commands MUST be invoked on VH.
+
+```
+git clone https://gitlab.mpcdf.mpg.de/elpa/elpa.git
+cd elpa
+git checkout ELPA_2011.12
+patch -p 1 < ../patch_ELPA
+sh make.sh
+```
+
+After, configure it with "conf_with_elpa.sh" and make it.
+
+```
+./conf.sh
+make pw
+```
 
 ## LICENSE
 
