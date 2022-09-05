@@ -41,35 +41,6 @@ double scnds ( )
 
 {
     double sec=0.0;
-
-#if defined(_WIN32)
-    // from MSDN docs.
-    FILETIME ct,et,kt,ut;
-    union { FILETIME ft; uint64_t ui; } cpu;
-    if (GetProcessTimes(GetCurrentProcess(),&ct,&et,&kt,&ut)) {
-        cpu.ft = ut;
-        sec = cpu.ui * 0.0000001;
-    }
-#elif defined(_OPENMP)
-    static struct rusage T;
-    getrusage(RUSAGE_SELF, &T);
-    sec = ((double)T.ru_utime.tv_sec + ((double)T.ru_utime.tv_usec)/1000000.0);
-
-#elif defined(USE_VEPERF) 
-    static int first = 1;
-    static int64_t core_clock;
-    if(first == 1){
-       core_clock = veperf_get_core_clock();
-       first = 0;
-    }
-    sec = ((double) veperf_get_usrcc()) / ((double) core_clock);
-#else
-    static struct rusage T;
-
-    getrusage(RUSAGE_SELF, &T);
-
-    sec = ((double)T.ru_utime.tv_sec + ((double)T.ru_utime.tv_usec)/1000000.0);
-#endif
     return sec;
 }
 
