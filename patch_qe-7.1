@@ -1,0 +1,1023 @@
+diff -uprN qe-7.1.org/CMakeLists.txt qe-7.1/CMakeLists.txt
+--- qe-7.1.org/CMakeLists.txt	2022-06-15 21:34:05.000000000 +0900
++++ qe-7.1/CMakeLists.txt	2022-12-06 09:08:12.924337000 +0900
+@@ -380,7 +380,7 @@ endif(QE_ENABLE_MPI)
+ ###########################################################
+ # Git
+ ###########################################################
+-find_package(Git 2.13 REQUIRED)
++find_package(Git 1.8.3.1 REQUIRED)
+ if(EXISTS ${qe_SOURCE_DIR}/.git)
+   message(STATUS "Source files are cloned from a git repository.")
+   set(IS_GIT_PROJECT 1)
+@@ -436,10 +436,10 @@ if(NOT QE_LAPACK_INTERNAL)
+     endif()
+     if(LAPACK_FOUND)
+         list(APPEND _lapack_libs
+-            ${BLAS_LIBRARIES}
+-            ${BLAS_LINKER_FLAGS}
+             ${LAPACK_LIBRARIES}
+-            ${LAPACK_LINKER_FLAGS})
++            ${LAPACK_LINKER_FLAGS}
++            ${BLAS_LIBRARIES}
++            ${BLAS_LINKER_FLAGS})
+         if(QE_ENABLE_OPENMP)
+             list(APPEND _lapack_libs ${OpenMP_Fortran_LIBRARIES})
+         endif()
+diff -uprN qe-7.1.org/FFTXlib/src/fft_scalar.FFTW3.f90 qe-7.1/FFTXlib/src/fft_scalar.FFTW3.f90
+--- qe-7.1.org/FFTXlib/src/fft_scalar.FFTW3.f90	2022-06-15 21:33:57.000000000 +0900
++++ qe-7.1/FFTXlib/src/fft_scalar.FFTW3.f90	2022-12-06 09:09:43.934985000 +0900
+@@ -37,7 +37,11 @@
+ #if defined(_OPENMP)
+        LOGICAL :: threads_initialized = .false.
+ #endif
++#ifndef __NEC__
+ #include "fftw3.f03"
++#else
++#include "aslfftw3.f03"
++#endif
+ 
+ !=----------------------------------------------------------------------=!
+    CONTAINS
+diff -uprN qe-7.1.org/KS_Solvers/Davidson/cegterg.f90 qe-7.1/KS_Solvers/Davidson/cegterg.f90
+--- qe-7.1.org/KS_Solvers/Davidson/cegterg.f90	2022-06-15 21:33:55.000000000 +0900
++++ qe-7.1/KS_Solvers/Davidson/cegterg.f90	2022-12-06 09:23:39.313794000 +0900
+@@ -7,6 +7,9 @@
+ !
+ #define ZERO ( 0.D0, 0.D0 )
+ #define ONE  ( 1.D0, 0.D0 )
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !----------------------------------------------------------------------------
+ SUBROUTINE cegterg( h_psi, s_psi, uspp, g_psi, &
+diff -uprN qe-7.1.org/Modules/capital.f90 qe-7.1/Modules/capital.f90
+--- qe-7.1.org/Modules/capital.f90	2022-06-15 21:34:01.000000000 +0900
++++ qe-7.1/Modules/capital.f90	2022-12-06 09:12:24.756766000 +0900
+@@ -14,25 +14,40 @@ FUNCTION capital( in_char )
+   IMPLICIT NONE  
+   !
+   CHARACTER(LEN=1), INTENT(IN) :: in_char
++#ifndef __NEC__
+   CHARACTER(LEN=1)             :: capital
++#else
++  CHARACTER(LEN=1)             :: capital, c
++#endif
+   CHARACTER(LEN=26), PARAMETER :: lower = 'abcdefghijklmnopqrstuvwxyz', &
+                                   upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+   INTEGER                      :: i
+   !
+   !
++#ifdef __NEC__
++  c = in_char
++#endif
+   DO i=1, 26
+      !
+      IF ( in_char == lower(i:i) ) THEN
+         !
++#ifndef __NEC__
+         capital = upper(i:i)
+         !
+         RETURN
++#else
++        c = upper(i:i)
++#endif
+         !
+      END IF
+      !
+   END DO
+   !
++#ifndef __NEC__
+   capital = in_char
++#else
++  capital = c
++#endif
+   !
+   RETURN 
+   !
+diff -uprN qe-7.1.org/Modules/xc_vdW_DF.f90 qe-7.1/Modules/xc_vdW_DF.f90
+--- qe-7.1.org/Modules/xc_vdW_DF.f90	2022-06-15 21:34:01.000000000 +0900
++++ qe-7.1/Modules/xc_vdW_DF.f90	2022-12-06 09:20:54.543969000 +0900
+@@ -250,7 +250,11 @@ CONTAINS
+      REAL(DP)             :: rho, dkF_drho
+      REAL(DP), PARAMETER  :: prefac = 1.0D0/3.0D0
+ 
++#ifndef __NEC__
+      dkF_drho = prefac * kF(rho) / rho
++#else
++     dkF_drho = prefac * cbrt( 3.0D0 * pi**2 * rho ) / rho
++#endif
+ 
+   END FUNCTION dkF_drho
+ 
+@@ -262,7 +266,11 @@ CONTAINS
+      IMPLICIT NONE
+      REAL(DP) :: rho, s, ds_drho
+ 
++#ifndef __NEC__
+      ds_drho = -s * ( dkF_drho(rho) / kF(rho) + 1.0D0 / rho )
++#else
++     ds_drho = -s * ( dkF_drho(rho) / cbrt( 3.0D0 * pi**2 * rho ) + 1.0D0 / rho )
++#endif
+ 
+   END FUNCTION ds_drho
+ 
+@@ -274,7 +282,11 @@ CONTAINS
+      IMPLICIT NONE
+      REAL(DP) :: rho, ds_dgradrho
+ 
++#ifndef __NEC__
+      ds_dgradrho = 0.5D0 / (kF(rho) * rho)
++#else
++     ds_dgradrho = 0.5D0 / (cbrt( 3.0D0 * pi**2 * rho ) * rho)
++#endif
+ 
+   END FUNCTION ds_dgradrho
+ 
+@@ -286,7 +298,11 @@ CONTAINS
+      IMPLICIT NONE
+      REAL(DP) :: rho, s, dqx_drho
+ 
++#ifndef __NEC__
+      dqx_drho = dkF_drho(rho) * Fs(s) + kF(rho) * dFs_ds(s) * ds_drho(rho, s)
++#else
++     dqx_drho = dkF_drho(rho) * Fs(s) + cbrt( 3.0D0 * pi**2 * rho ) * dFs_ds(s) * ds_drho(rho, s)
++#endif
+ 
+   END FUNCTION dqx_drho
+ 
+@@ -780,7 +796,11 @@ CONTAINS
+      r_s = ( 3.0D0 / (4.0D0*pi*rho) )**(1.0D0/3.0D0)
+ 
+      s   = SQRT( grad_rho(1,i_grid)**2 + grad_rho(2,i_grid)**2 + grad_rho(3,i_grid)**2 ) / &
++#ifndef __NEC__
+            (2.0D0 * kF(rho) * rho )
++#else
++           (2.0D0 * cbrt( 3.0D0 * pi**2 * rho ) * rho )
++#endif
+ 
+ 
+      ! -----------------------------------------------------------------
+@@ -788,7 +808,11 @@ CONTAINS
+      ! Use pw() from flib/functionals.f90 to get qc = kf/eps_x * eps_c.
+      !
+      CALL pw(r_s, 1, ec, dq0_drho(i_grid))
++#ifndef __NEC__
+      q = -4.0D0*pi/3.0D0 * ec + kF(rho) * Fs(s)
++#else
++     q = -4.0D0*pi/3.0D0 * ec + cbrt( 3.0D0 * pi**2 * rho ) * Fs(s)
++#endif
+ 
+ 
+      ! -----------------------------------------------------------------
+@@ -816,7 +840,11 @@ CONTAINS
+ 
+      dq0_drho(i_grid)     = dq0_dq * rho * ( -4.0D0*pi/3.0D0 * &
+                             (dq0_drho(i_grid) - ec)/rho + dqx_drho(rho, s) )
++#ifndef __NEC__
+      dq0_dgradrho(i_grid) = dq0_dq * rho * kF(rho) * dFs_ds(s) * ds_dgradrho(rho)
++#else
++     dq0_dgradrho(i_grid) = dq0_dq * rho * cbrt( 3.0D0 * pi**2 * rho ) * dFs_ds(s) * ds_dgradrho(rho)
++#endif
+ 
+   END DO
+ 
+@@ -998,15 +1026,25 @@ CONTAINS
+ 
+      IF ( calc_qx_up ) THEN
+         s_up    = SQRT( grad_rho_up(1,i_grid)**2 + grad_rho_up(2,i_grid)**2 + &
++#ifndef __NEC_TUNE__
+                   grad_rho_up(3,i_grid)**2 ) / (2.0D0 * kF(up) * up)
+         qx_up   = kF(2.0D0*up) * Fs(fac*s_up)
++#else
++                  grad_rho_up(3,i_grid)**2 ) / (2.0D0 * cbrt( 3.0D0 * pi**2 * up )* up)
++        qx_up   = cbrt( 3.0D0 * pi**2 * 2.0D0*up )* Fs(fac*s_up)
++#endif
+         CALL saturate_q (qx_up, 4.0D0*q_cut, q0x_up, dq0x_up_dq)
+      END IF
+ 
+      IF ( calc_qx_down ) THEN
+         s_down  = SQRT( grad_rho_down(1,i_grid)**2 + grad_rho_down(2,i_grid)**2 + &
++#ifndef __NEC_TUNE__
+                   grad_rho_down(3,i_grid)**2) / (2.0D0 * kF(down) * down)
+         qx_down = kF(2.0D0*down) * Fs(fac*s_down)
++#else
++          grad_rho_down(3,i_grid)**2) / (2.0D0 * cbrt( 3.0D0 * pi**2 * down ) * down)
++        qx_down = cbrt( 3.0D0 * pi**2 *2.0D0*down) * Fs(fac*s_down)
++#endif
+         CALL saturate_q (qx_down, 4.0D0*q_cut, q0x_down, dq0x_down_dq)
+      END IF
+ 
+@@ -1015,7 +1053,11 @@ CONTAINS
+      ! This is the q value defined in equations 11 and 12 of DION and
+      ! equation 8 of THONHAUSER (also see text above that equation).
+ 
++#ifndef __NEC__
+      r_s  = ( 3.0D0 / (4.0D0*pi*rho) )**(1.0D0/3.0D0)
++#else
++     r_s  = cbrt( 3.0D0 / (4.0D0*pi*rho) )
++#endif
+      zeta = (up - down) / rho
+      IF ( ABS(zeta) > 1.0D0 ) zeta = SIGN(1.0D0, zeta)
+      call pw_spin( r_s, zeta, ec, vc(1), vc(2) )
+@@ -1052,13 +1094,21 @@ CONTAINS
+ 
+      IF ( calc_qx_up ) THEN
+         dqx_drho_up   = 2.0D0*dq0x_up_dq*up*dqx_drho(2.0D0*up, fac*s_up) + q0x_up*down/rho
++#ifndef __NEC__
+         dq0_dgradrho_up (i_grid) = 2.0D0 * dq0_dq * dq0x_up_dq * up * kF(2.0D0*up) * &
++#else
++        dq0_dgradrho_up (i_grid) = 2.0D0 * dq0_dq * dq0x_up_dq * up * cbrt( 3.0D0 * pi**2 * 2.0D0*up ) * &
++#endif
+                         dFs_ds(fac*s_up) * ds_dgradrho(2.0D0*up)
+      END IF
+ 
+      IF ( calc_qx_down ) THEN
+         dqx_drho_down = 2.0D0*dq0x_down_dq*down*dqx_drho(2.0D0*down, fac*s_down) + q0x_down*up/rho
++#ifndef __NEC__
+         dq0_dgradrho_down(i_grid) = 2.0D0 * dq0_dq * dq0x_down_dq * down * kF(2.0D0*down) * &
++#else
++        dq0_dgradrho_down(i_grid) = 2.0D0 * dq0_dq * dq0x_down_dq * down * cbrt( 3.0D0 * pi**2 * 2.0D0*down ) * &
++#endif
+                         dFs_ds(fac*s_down) * ds_dgradrho(2.0D0*down)
+      END IF
+ 
+diff -uprN qe-7.1.org/PW/CMakeLists.txt qe-7.1/PW/CMakeLists.txt
+--- qe-7.1.org/PW/CMakeLists.txt	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/CMakeLists.txt	2022-12-06 09:22:12.455135000 +0900
+@@ -296,8 +296,6 @@ target_link_libraries(qe_pw
+     PRIVATE
+         qe_hdf5_fortran
+         qe_elpa
+-        qe_scalapack
+-        qe_lax
+         qe_kssolver_davidson
+         qe_kssolver_cg
+         qe_kssolver_ppcg
+@@ -313,6 +311,8 @@ target_link_libraries(qe_pw
+         qe_xclib
+         qe_devxlib
+         qe_mbd
++        qe_scalapack
++        qe_lax
+     PUBLIC
+         qe_openacc_fortran)
+ 
+diff -uprN qe-7.1.org/PW/src/add_vuspsi.f90 qe-7.1/PW/src/add_vuspsi.f90
+--- qe-7.1.org/PW/src/add_vuspsi.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/add_vuspsi.f90	2022-12-06 09:23:13.498023000 +0900
+@@ -5,6 +5,9 @@
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
+ !
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !----------------------------------------------------------------------------
+ SUBROUTINE add_vuspsi( lda, n, m, hpsi )
+diff -uprN qe-7.1.org/PW/src/exx.f90 qe-7.1/PW/src/exx.f90
+--- qe-7.1.org/PW/src/exx.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/exx.f90	2022-12-06 09:37:44.415586000 +0900
+@@ -3,6 +3,9 @@
+ ! GNU General Public License. See the file `License'
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ #if defined(__USE_MANY_FFT)
+ #error USE_MANY_FFT not implemented in the GPU version.
+diff -uprN qe-7.1.org/PW/src/force_hub.f90 qe-7.1/PW/src/force_hub.f90
+--- qe-7.1.org/PW/src/force_hub.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/force_hub.f90	2022-12-06 09:38:16.366752000 +0900
+@@ -5,6 +5,9 @@
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
+ !
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !----------------------------------------------------------------------
+ SUBROUTINE force_hub( forceh )
+diff -uprN qe-7.1.org/PW/src/forces.f90 qe-7.1/PW/src/forces.f90
+--- qe-7.1.org/PW/src/forces.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/forces.f90	2022-12-06 09:38:51.595424000 +0900
+@@ -277,6 +277,7 @@ SUBROUTINE forces()
+      !
+      sumfor = 0.D0
+      !
++!NEC$ novector
+      DO na = 1, nat
+         !
+         force(ipol,na) = force(ipol,na)    + &
+diff -uprN qe-7.1.org/PW/src/s_psi.f90 qe-7.1/PW/src/s_psi.f90
+--- qe-7.1.org/PW/src/s_psi.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/s_psi.f90	2022-12-06 09:39:31.448392000 +0900
+@@ -5,6 +5,9 @@
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
+ !
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !----------------------------------------------------------------------
+ SUBROUTINE s_psi( lda, n, m, psi, spsi )
+diff -uprN qe-7.1.org/PW/src/sum_band.f90 qe-7.1/PW/src/sum_band.f90
+--- qe-7.1.org/PW/src/sum_band.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/sum_band.f90	2022-12-06 09:40:26.928597000 +0900
+@@ -5,6 +5,9 @@
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
+ !
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !----------------------------------------------------------------------------
+ SUBROUTINE sum_band()
+@@ -1138,6 +1141,7 @@ SUBROUTINE sum_bec ( ik, current_spin, i
+               ELSE
+                  ijh = 0
+                  DO ih = 1, nh(np)
++!NEC$ novector
+                     DO jh = ih, nh(np)
+                        ijh = ijh + 1
+                        !
+diff -uprN qe-7.1.org/PW/src/vhpsi.f90 qe-7.1/PW/src/vhpsi.f90
+--- qe-7.1.org/PW/src/vhpsi.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/PW/src/vhpsi.f90	2022-12-06 09:40:52.275364000 +0900
+@@ -5,6 +5,9 @@
+ ! in the root directory of the present distribution,
+ ! or http://www.gnu.org/copyleft/gpl.txt .
+ !
++#ifdef __ZGEMM3M
++#define ZGEMM ZGEMM3M
++#endif
+ !
+ !-----------------------------------------------------------------------
+ SUBROUTINE vhpsi( ldap, np, mps, psip, hpsi )
+diff -uprN qe-7.1.org/external/devxlib/src/device_fbuff.f90 qe-7.1/external/devxlib/src/device_fbuff.f90
+--- qe-7.1.org/external/devxlib/src/device_fbuff.f90	2022-06-15 21:34:00.000000000 +0900
++++ qe-7.1/external/devxlib/src/device_fbuff.f90	2022-12-06 11:06:02.749980000 +0900
+@@ -18,7 +18,11 @@ module tb_dev
+ #if defined(__CUDA)
+      BYTE, POINTER , device  :: space(:)
+ #else
++#ifndef __NEC__
+      BYTE, POINTER                 :: space(:)
++#else
++     integer(1), POINTER                 :: space(:)
++#endif
+ #endif
+      LOGICAL             :: locked
+      TYPE(Node), POINTER :: Next
+@@ -450,7 +454,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -487,7 +495,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -524,7 +536,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -561,7 +577,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -600,7 +620,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -637,7 +661,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -674,7 +702,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -711,7 +743,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -750,7 +786,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -787,7 +827,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -824,7 +868,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -861,7 +909,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -1180,7 +1232,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1213,7 +1269,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1246,7 +1306,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1279,7 +1343,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1314,7 +1382,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1347,7 +1419,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1380,7 +1456,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1413,7 +1493,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1448,7 +1532,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1481,7 +1569,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1514,7 +1606,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1547,7 +1643,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -1574,7 +1674,11 @@ module tb_pin
+ #if defined(__CUDA)
+      BYTE, POINTER  :: space(:)
+ #else
++#ifndef __NEC__
+      BYTE, POINTER                 :: space(:)
++#else
++     integer(1), POINTER                 :: space(:)
++#endif
+ #endif
+      LOGICAL             :: locked
+      TYPE(Node), POINTER :: Next
+@@ -2009,7 +2113,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2045,7 +2153,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2081,7 +2193,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2117,7 +2233,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2155,7 +2275,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2191,7 +2315,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2227,7 +2355,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2263,7 +2395,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2301,7 +2437,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2337,7 +2477,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2373,7 +2517,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2409,7 +2557,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     ! Free and simple compatibility with zero dimension buffers.
+     IF ( d == 0 ) d = 1
+@@ -2715,7 +2867,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2747,7 +2903,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2779,7 +2939,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2811,7 +2975,11 @@ contains
+     integer :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*4
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2845,7 +3013,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2877,7 +3049,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2909,7 +3085,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2941,7 +3121,11 @@ contains
+     real(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*8
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -2975,7 +3159,11 @@ contains
+     vsize(1) = vsize_
+     !
+     d = PRODUCT(vsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -3007,7 +3195,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(msize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -3039,7 +3231,11 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(tsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+@@ -3071,11 +3267,15 @@ contains
+     complex(DP) :: dummy
+     !
+     d = PRODUCT(fsize)
++#ifndef __NEC__
+     d = d*SIZEOF(dummy)
++#else
++    d = d*16
++#endif
+     !
+     CALL this%prepare_space(d, info)
+     !
+   end subroutine prepare_buffer_cf
+ 
+ 
+-end module tb_pin
+\ No newline at end of file
++end module tb_pin
+diff -uprN qe-7.1.org/upflib/sph_bes.f90 qe-7.1/upflib/sph_bes.f90
+--- qe-7.1.org/upflib/sph_bes.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/upflib/sph_bes.f90	2022-12-06 10:44:02.967105000 +0900
+@@ -31,6 +31,9 @@ subroutine sph_bes (msh, r, q, l, jl)
+   real(DP) :: x, xl, xseries = 0.05_dp
+   integer :: ir, ir0
+   integer, external:: semifact
++#ifdef __NEC__
++  integer :: val_semifact
++#endif
+   !
+ #if defined (__MASS)
+   real(DP) :: qr(msh), sin_qr(msh), cos_qr(msh)
+@@ -82,6 +85,25 @@ subroutine sph_bes (msh, r, q, l, jl)
+      end if
+   end do
+ 
++#ifdef __NEC__
++  if (l == 0) then
++    val_semifact = 1
++  elseif (l == 1) then
++    val_semifact = 3      ! 1*3
++  elseif (l == 2) then
++    val_semifact = 15     ! 3*5
++  elseif (l == 3) then
++    val_semifact = 105    ! 15*7
++  elseif (l == 4) then
++    val_semifact = 945    ! 105*9
++  elseif (l == 5) then
++    val_semifact = 10395  ! 945*11
++  elseif (l == 6) then
++    val_semifact = 135135 ! 10395*13
++  else
++    val_semifact = semifact(2*l+1)
++  endif
++#endif
+   do ir = 1, ir0 - 1
+      x = q * r (ir)
+      if ( l == 0 ) then
+@@ -89,7 +111,11 @@ subroutine sph_bes (msh, r, q, l, jl)
+      else
+         xl = x**l
+      end if
++#ifdef __NEC__
+      jl (ir) = xl/semifact(2*l+1) * &
++#else
++     jl (ir) = xl/val_semifact * &
++#endif
+                 ( 1.0_dp - x**2/1.0_dp/2.0_dp/(2.0_dp*l+3) * &
+                 ( 1.0_dp - x**2/2.0_dp/2.0_dp/(2.0_dp*l+5) * &
+                 ( 1.0_dp - x**2/3.0_dp/2.0_dp/(2.0_dp*l+7) * &
