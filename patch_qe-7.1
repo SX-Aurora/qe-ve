@@ -1,6 +1,6 @@
 diff -uprN qe-7.1.org/CMakeLists.txt qe-7.1/CMakeLists.txt
 --- qe-7.1.org/CMakeLists.txt	2022-06-15 21:34:05.000000000 +0900
-+++ qe-7.1/CMakeLists.txt	2022-12-06 09:08:12.924337000 +0900
++++ qe-7.1/CMakeLists.txt	2023-03-15 17:38:49.497394000 +0900
 @@ -380,7 +380,7 @@ endif(QE_ENABLE_MPI)
  ###########################################################
  # Git
@@ -26,7 +26,7 @@ diff -uprN qe-7.1.org/CMakeLists.txt qe-7.1/CMakeLists.txt
          endif()
 diff -uprN qe-7.1.org/FFTXlib/src/fft_scalar.FFTW3.f90 qe-7.1/FFTXlib/src/fft_scalar.FFTW3.f90
 --- qe-7.1.org/FFTXlib/src/fft_scalar.FFTW3.f90	2022-06-15 21:33:57.000000000 +0900
-+++ qe-7.1/FFTXlib/src/fft_scalar.FFTW3.f90	2022-12-06 09:09:43.934985000 +0900
++++ qe-7.1/FFTXlib/src/fft_scalar.FFTW3.f90	2023-03-15 17:38:49.506353000 +0900
 @@ -37,7 +37,11 @@
  #if defined(_OPENMP)
         LOGICAL :: threads_initialized = .false.
@@ -41,7 +41,7 @@ diff -uprN qe-7.1.org/FFTXlib/src/fft_scalar.FFTW3.f90 qe-7.1/FFTXlib/src/fft_sc
     CONTAINS
 diff -uprN qe-7.1.org/KS_Solvers/Davidson/cegterg.f90 qe-7.1/KS_Solvers/Davidson/cegterg.f90
 --- qe-7.1.org/KS_Solvers/Davidson/cegterg.f90	2022-06-15 21:33:55.000000000 +0900
-+++ qe-7.1/KS_Solvers/Davidson/cegterg.f90	2022-12-06 09:23:39.313794000 +0900
++++ qe-7.1/KS_Solvers/Davidson/cegterg.f90	2023-03-15 17:38:49.514110000 +0900
 @@ -7,6 +7,9 @@
  !
  #define ZERO ( 0.D0, 0.D0 )
@@ -54,7 +54,7 @@ diff -uprN qe-7.1.org/KS_Solvers/Davidson/cegterg.f90 qe-7.1/KS_Solvers/Davidson
  SUBROUTINE cegterg( h_psi, s_psi, uspp, g_psi, &
 diff -uprN qe-7.1.org/Modules/capital.f90 qe-7.1/Modules/capital.f90
 --- qe-7.1.org/Modules/capital.f90	2022-06-15 21:34:01.000000000 +0900
-+++ qe-7.1/Modules/capital.f90	2022-12-06 09:12:24.756766000 +0900
++++ qe-7.1/Modules/capital.f90	2023-03-15 17:38:49.538417000 +0900
 @@ -14,25 +14,40 @@ FUNCTION capital( in_char )
    IMPLICIT NONE  
    !
@@ -98,7 +98,7 @@ diff -uprN qe-7.1.org/Modules/capital.f90 qe-7.1/Modules/capital.f90
    !
 diff -uprN qe-7.1.org/Modules/xc_vdW_DF.f90 qe-7.1/Modules/xc_vdW_DF.f90
 --- qe-7.1.org/Modules/xc_vdW_DF.f90	2022-06-15 21:34:01.000000000 +0900
-+++ qe-7.1/Modules/xc_vdW_DF.f90	2022-12-06 09:20:54.543969000 +0900
++++ qe-7.1/Modules/xc_vdW_DF.f90	2023-03-15 17:38:49.545269000 +0900
 @@ -250,7 +250,11 @@ CONTAINS
       REAL(DP)             :: rho, dkF_drho
       REAL(DP), PARAMETER  :: prefac = 1.0D0/3.0D0
@@ -245,7 +245,7 @@ diff -uprN qe-7.1.org/Modules/xc_vdW_DF.f90 qe-7.1/Modules/xc_vdW_DF.f90
  
 diff -uprN qe-7.1.org/PW/CMakeLists.txt qe-7.1/PW/CMakeLists.txt
 --- qe-7.1.org/PW/CMakeLists.txt	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/CMakeLists.txt	2022-12-06 09:22:12.455135000 +0900
++++ qe-7.1/PW/CMakeLists.txt	2023-03-15 17:38:49.552672000 +0900
 @@ -296,8 +296,6 @@ target_link_libraries(qe_pw
      PRIVATE
          qe_hdf5_fortran
@@ -266,7 +266,7 @@ diff -uprN qe-7.1.org/PW/CMakeLists.txt qe-7.1/PW/CMakeLists.txt
  
 diff -uprN qe-7.1.org/PW/src/add_vuspsi.f90 qe-7.1/PW/src/add_vuspsi.f90
 --- qe-7.1.org/PW/src/add_vuspsi.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/add_vuspsi.f90	2022-12-06 09:23:13.498023000 +0900
++++ qe-7.1/PW/src/add_vuspsi.f90	2023-03-15 17:38:49.575816000 +0900
 @@ -5,6 +5,9 @@
  ! in the root directory of the present distribution,
  ! or http://www.gnu.org/copyleft/gpl.txt .
@@ -279,7 +279,7 @@ diff -uprN qe-7.1.org/PW/src/add_vuspsi.f90 qe-7.1/PW/src/add_vuspsi.f90
  SUBROUTINE add_vuspsi( lda, n, m, hpsi )
 diff -uprN qe-7.1.org/PW/src/exx.f90 qe-7.1/PW/src/exx.f90
 --- qe-7.1.org/PW/src/exx.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/exx.f90	2022-12-06 09:37:44.415586000 +0900
++++ qe-7.1/PW/src/exx.f90	2023-03-15 17:38:49.584903000 +0900
 @@ -3,6 +3,9 @@
  ! GNU General Public License. See the file `License'
  ! in the root directory of the present distribution,
@@ -292,7 +292,7 @@ diff -uprN qe-7.1.org/PW/src/exx.f90 qe-7.1/PW/src/exx.f90
  #error USE_MANY_FFT not implemented in the GPU version.
 diff -uprN qe-7.1.org/PW/src/force_hub.f90 qe-7.1/PW/src/force_hub.f90
 --- qe-7.1.org/PW/src/force_hub.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/force_hub.f90	2022-12-06 09:38:16.366752000 +0900
++++ qe-7.1/PW/src/force_hub.f90	2023-03-15 17:38:49.592584000 +0900
 @@ -5,6 +5,9 @@
  ! in the root directory of the present distribution,
  ! or http://www.gnu.org/copyleft/gpl.txt .
@@ -305,7 +305,7 @@ diff -uprN qe-7.1.org/PW/src/force_hub.f90 qe-7.1/PW/src/force_hub.f90
  SUBROUTINE force_hub( forceh )
 diff -uprN qe-7.1.org/PW/src/forces.f90 qe-7.1/PW/src/forces.f90
 --- qe-7.1.org/PW/src/forces.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/forces.f90	2022-12-06 09:38:51.595424000 +0900
++++ qe-7.1/PW/src/forces.f90	2023-03-15 17:38:49.599423000 +0900
 @@ -277,6 +277,7 @@ SUBROUTINE forces()
       !
       sumfor = 0.D0
@@ -316,7 +316,7 @@ diff -uprN qe-7.1.org/PW/src/forces.f90 qe-7.1/PW/src/forces.f90
          force(ipol,na) = force(ipol,na)    + &
 diff -uprN qe-7.1.org/PW/src/s_psi.f90 qe-7.1/PW/src/s_psi.f90
 --- qe-7.1.org/PW/src/s_psi.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/s_psi.f90	2022-12-06 09:39:31.448392000 +0900
++++ qe-7.1/PW/src/s_psi.f90	2023-03-15 17:38:49.606521000 +0900
 @@ -5,6 +5,9 @@
  ! in the root directory of the present distribution,
  ! or http://www.gnu.org/copyleft/gpl.txt .
@@ -329,7 +329,7 @@ diff -uprN qe-7.1.org/PW/src/s_psi.f90 qe-7.1/PW/src/s_psi.f90
  SUBROUTINE s_psi( lda, n, m, psi, spsi )
 diff -uprN qe-7.1.org/PW/src/sum_band.f90 qe-7.1/PW/src/sum_band.f90
 --- qe-7.1.org/PW/src/sum_band.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/sum_band.f90	2022-12-06 09:40:26.928597000 +0900
++++ qe-7.1/PW/src/sum_band.f90	2023-03-15 17:38:49.613931000 +0900
 @@ -5,6 +5,9 @@
  ! in the root directory of the present distribution,
  ! or http://www.gnu.org/copyleft/gpl.txt .
@@ -350,7 +350,7 @@ diff -uprN qe-7.1.org/PW/src/sum_band.f90 qe-7.1/PW/src/sum_band.f90
                         !
 diff -uprN qe-7.1.org/PW/src/vhpsi.f90 qe-7.1/PW/src/vhpsi.f90
 --- qe-7.1.org/PW/src/vhpsi.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/PW/src/vhpsi.f90	2022-12-06 09:40:52.275364000 +0900
++++ qe-7.1/PW/src/vhpsi.f90	2023-03-15 17:38:49.620678000 +0900
 @@ -5,6 +5,9 @@
  ! in the root directory of the present distribution,
  ! or http://www.gnu.org/copyleft/gpl.txt .
@@ -361,9 +361,28 @@ diff -uprN qe-7.1.org/PW/src/vhpsi.f90 qe-7.1/PW/src/vhpsi.f90
  !
  !-----------------------------------------------------------------------
  SUBROUTINE vhpsi( ldap, np, mps, psip, hpsi )
+diff -uprN qe-7.1.org/UtilXlib/cptimer.c qe-7.1/UtilXlib/cptimer.c
+--- qe-7.1.org/UtilXlib/cptimer.c	2022-06-15 21:33:55.000000000 +0900
++++ qe-7.1/UtilXlib/cptimer.c	2023-03-15 17:40:23.995981000 +0900
+@@ -68,6 +68,7 @@ double scnds ( )
+ {
+     double sec=0.0;
+ 
++#ifndef __NEC__
+ #if defined(_WIN32)
+     // from MSDN docs.
+     FILETIME ct,et,kt,ut;
+@@ -83,6 +84,7 @@ double scnds ( )
+ 
+     sec = ((double)T.ru_utime.tv_sec + ((double)T.ru_utime.tv_usec)/1000000.0);
+ #endif
++#endif
+     return sec;
+ }
+ 
 diff -uprN qe-7.1.org/external/devxlib/src/device_fbuff.f90 qe-7.1/external/devxlib/src/device_fbuff.f90
 --- qe-7.1.org/external/devxlib/src/device_fbuff.f90	2022-06-15 21:34:00.000000000 +0900
-+++ qe-7.1/external/devxlib/src/device_fbuff.f90	2022-12-06 11:06:02.749980000 +0900
++++ qe-7.1/external/devxlib/src/device_fbuff.f90	2023-03-15 17:38:49.627588000 +0900
 @@ -18,7 +18,11 @@ module tb_dev
  #if defined(__CUDA)
       BYTE, POINTER , device  :: space(:)
@@ -970,9 +989,37 @@ diff -uprN qe-7.1.org/external/devxlib/src/device_fbuff.f90 qe-7.1/external/devx
 -end module tb_pin
 \ No newline at end of file
 +end module tb_pin
+diff -uprN qe-7.1.org/upflib/qvan2.f90 qe-7.1/upflib/qvan2.f90
+--- qe-7.1.org/upflib/qvan2.f90	2022-06-15 21:33:56.000000000 +0900
++++ qe-7.1/upflib/qvan2.f90	2023-03-15 18:58:28.278425000 +0900
+@@ -140,9 +140,11 @@ SUBROUTINE qvan2( ngy, ih, jh, np, qmod,
+         !
+         ! ... calculates quantites depending on the module of G only when needed
+         !
++#ifndef __NEC__
+ #if ! defined _OPENMP
+         IF ( ABS( qmod(ig) - qm1 ) > 1.0D-6 ) THEN
+ #endif
++#endif
+            !
+            qm = qmod (ig) * dqi
+            px = qm - INT(qm)
+@@ -159,10 +161,12 @@ SUBROUTINE qvan2( ngy, ih, jh, np, qmod,
+                   qrad(i1,ijv,l,np) * pwx * vx - &
+                   qrad(i2,ijv,l,np) * pwx * ux + &
+                   qrad(i3,ijv,l,np) * px * uvx
++#ifndef __NEC__
+ #if ! defined _OPENMP
+            qm1 = qmod(ig)
+         END IF
+ #endif
++#endif
+         qg(ind,ig) = qg(ind,ig) + sig * ylmk0(ig,lp) * work
+         !
+      ENDDO
 diff -uprN qe-7.1.org/upflib/sph_bes.f90 qe-7.1/upflib/sph_bes.f90
 --- qe-7.1.org/upflib/sph_bes.f90	2022-06-15 21:33:56.000000000 +0900
-+++ qe-7.1/upflib/sph_bes.f90	2022-12-06 10:44:02.967105000 +0900
++++ qe-7.1/upflib/sph_bes.f90	2023-03-15 17:38:49.634908000 +0900
 @@ -31,6 +31,9 @@ subroutine sph_bes (msh, r, q, l, jl)
    real(DP) :: x, xl, xseries = 0.05_dp
    integer :: ir, ir0
